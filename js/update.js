@@ -3,7 +3,5 @@ var frames = setInterval(() => {
 }, frameTime);
 
 function update() {
-    drawMap();
-    drawDoor();
-    drawText();
+    drawPlayer();
 }
