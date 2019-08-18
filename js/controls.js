@@ -3,6 +3,8 @@ document.onkeydown =(event)=> {
         player.pressingRight = true;
     }if(event.keyCode == 65 || event.keyCode == 37) {
         player.pressingLeft = true;        
+    }if(event.keyCode == 16) {
+        player.xspd = 20;        
     }
 }
 
@@ -11,5 +13,7 @@ document.onkeyup =(event)=> {
         player.pressingRight = false;
     }if(event.keyCode == 65 || event.keyCode == 37) {
         player.pressingLeft = false;        
+    }if(event.keyCode == 16) {
+        player.xspd = 5;        
     }
 }
