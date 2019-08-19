@@ -5,6 +5,9 @@ document.onkeydown =(event)=> {
         player.pressingLeft = true;        
     }if(event.keyCode == 16) {
         player.xspd = 20;        
+    }if(event.keyCode == 49) {
+        if(player.x > 100 && player.x < 200)
+            enterStage1 = true;
     }
 }
 
@@ -15,5 +18,8 @@ document.onkeyup =(event)=> {
         player.pressingLeft = false;        
     }if(event.keyCode == 16) {
         player.xspd = 5;        
+    }if(event.keyCode == 49) {
+        if(player.x > 100 && player.x < 200)
+            enterStage1 = true;
     }
 }
