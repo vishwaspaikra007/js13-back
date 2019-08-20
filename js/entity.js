@@ -95,14 +95,14 @@ stage0 = function() {
     if(player.pressingLeft == true)
         player.x-=player.xspd;
     const x = centerPlay("x",player.mapSize); 
-    stayInBoundary("x",player.mapSize);
+    stayInBoundary("x",0,player.mapSize,'map');
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore()
 }
 
-stayInBoundary = (StageX,mapSize) => {
-    if(player[StageX] < 0)
-        player[StageX] = 0;
+stayInBoundary = (StageX,lowerBound,mapSize,map) => {
+    if(player[StageX] < lowerBound && map=='map')
+        player[StageX] = lowerBound;
     if(player[StageX] + player.width >= mapSize) {
         player[StageX] = mapSize - player.width;
     }
@@ -133,5 +133,22 @@ mapMovement = function(x,StageX,mapSize) {
                 playerPositionBeforeCenter = player.x;
             }
         }
+    } if(StageX == "s1x") {
+        drawBlock();
     }
+}
+
+drawBlock = function() {
+    ctx.save();
+    // a,b,width,angle
+    var grd = ctx.createLinearGradient(0,0,980,0);
+    // Add colors
+    for(let i=0;i<980;i+=100)
+        grd.addColorStop(0.1*i/100, (i/100)%2?'white':'grey');
+    // Fill with gradient
+    ctx.fillStyle = grd;
+    for(let i=0;i<4;i++) {
+        ctx.fillRect(500+40*i,0,30,358);
+    }
+    ctx.restore();
 }
