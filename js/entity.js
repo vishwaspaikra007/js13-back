@@ -15,15 +15,6 @@ player.mapSize = 43*130;
 player.mapSizeS1 = ctxS.clientWidth;
 var enterStage1 = false;
 
-var choice = "Your choice doesn't matter";
-var destiny = "But Destiny";
-var moving  = "Keep Moving ==>";
-var save = "Save";
-var life = "My Life Please";
-var key = "The KEY is inside";
-var come = "Come in if you want it";
-var instruction1 = "Press shift to move faster and go back to play game";
-var instruction2 = "To enter room press shift &uarr;";
 var dialogues = [["Your choice doesn't matter","But Destiny"],
                 ["Save","My Life Please"],
                 ["The KEY is inside","Come in if you want it"],
@@ -65,19 +56,21 @@ drawDoor = function(x=0,defaultPosition=100) {
     ctx.restore();
 }
 
-drawText = function(x=0,defaultPosition=199,text1="",text2="") {
+drawText = function(x=0,defaultPosition=199,text,font="60px Georgia") {
     ctx.save();
-    ctx.font = "60px Georgia";
-    ctx.fillStyle = "red"
-    ctx.fillText(text1, defaultPosition+x, 150);
-    ctx.fillText(text2, defaultPosition+x, 200);
-    ctx.fillStyle = "cyan"
-    ctx.fillText(text1, defaultPosition+2+x, 150);
-    ctx.fillText(text2, defaultPosition+2+x, 200);
-    ctx.fillStyle = "black"
-    ctx.fillText(text1, defaultPosition+1+x, 150);
-    ctx.fillText(text2, defaultPosition+1+x, 200);
+    ctx.font = font;
+    let a = font.slice(0,2);
+    styleText("red",defaultPosition,x,text,a);
+    styleText("cyan",defaultPosition,x+2,text,a);
+    styleText("black",defaultPosition,x+1,text,a);
     ctx.restore()
+}
+
+styleText = function(color,defaultPosition,x,text,a) {
+    ctx.fillStyle = color;
+    for(let i=0;i<text.length;i++) {
+        ctx.fillText(text[i], defaultPosition+x, 150+Number(a)*i);
+    }
 }
 
 drawPlayer = function() {
@@ -94,7 +87,7 @@ stage0 = function() {
         player.x+=player.xspd;
     if(player.pressingLeft == true)
         player.x-=player.xspd;
-    const x = centerPlay("x",player.mapSize); 
+    const x = centerPlay("x",player.mapSize,5,dialogues); 
     stayInBoundary("x",0,player.mapSize,'map');
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore()
@@ -109,26 +102,26 @@ stayInBoundary = (StageX,lowerBound,mapSize,map) => {
     
 }
 
-centerPlay = function(StageX,mapSize) {
+centerPlay = function(StageX,mapSize,n,text,font) {
     if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2) {
         const x = player[StageX] - playerPositionBeforeCenter;
-        mapMovement(x,StageX,mapSize);
+        mapMovement(x,StageX,mapSize,n,text,font);
         playerPositionAfterCenter = player[StageX];
         return ctxS.clientWidth/2 - player.width/2;
     } else if(player[StageX] + player.width/2 >= mapSize - ctxS.clientWidth/2 && StageX=="x") {
-        mapMovement(playerPositionAfterCenter - playerPositionBeforeCenter,StageX,mapSize);
+        mapMovement(playerPositionAfterCenter - playerPositionBeforeCenter,StageX,mapSize,n,text,font);
         return player[StageX]-playerPositionAfterCenter + ctxS.clientWidth/2 - player.width/2;
     } else {
-        mapMovement(0,StageX,mapSize);
+        mapMovement(0,StageX,mapSize,n,text,font);
         return player[StageX];
     }
 }
-mapMovement = function(x,StageX,mapSize) {
+mapMovement = function(x,StageX,mapSize,n=0,text,font) {
     drawMap(-x,mapSize);
-    if(StageX == "x") {
-        for(let i=0;i<5;i++) {
+    if(StageX == "x" || StageX == "s1x") {
+        for(let i=0;i<n;i++) {
         drawDoor(-x,100*(10*i+1));
-        drawText(-x,100*(10*i+1)+100,dialogues[i][0],dialogues[i][1]);
+        drawText(-x,100*(10*i+1)+100,text[i],font);
             if(x==0) {
                 playerPositionBeforeCenter = player.x;
             }
