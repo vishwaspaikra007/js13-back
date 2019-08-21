@@ -1,3 +1,4 @@
+
 document.onkeydown =(event)=> {
     if(event.keyCode == 68 || event.keyCode == 39) {
         player.pressingRight = true;
@@ -5,9 +6,6 @@ document.onkeydown =(event)=> {
         player.pressingLeft = true;        
     }if(event.keyCode == 16) {
         player.xspd = 20;        
-    }if(event.keyCode == 13) {
-        if(player.x > 100 && player.x < 200)
-            enterStage1 = true;
     }
 }
 
@@ -19,7 +17,16 @@ document.onkeyup =(event)=> {
     }if(event.keyCode == 16) {
         player.xspd = 5;        
     }if(event.keyCode == 13) {
-        if(player.x > 100 && player.x < 200)
-            enterStage1 = true;
+        if(player.x > 100 && player.x < 200 && enterStage0 == true) {
+            enterStageCheck('enterStage1');
+        } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
+            enterStageCheck('enterStage0');
+        }
     }
+}
+
+enterStageCheck = function(value) {
+    enterStage0 = value=='enterStage0'?true:false;
+    enterStage1 = value=='enterStage1'?true:false;
+    console.log(enterStage0, enterStage1);
 }

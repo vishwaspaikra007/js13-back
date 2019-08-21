@@ -13,6 +13,8 @@ player.height  = 375*0.5;
 player.xspd = 5;
 player.mapSize = 43*130;
 player.mapSizeS1 = ctxS.clientWidth;
+
+var enterStage0 = true;
 var enterStage1 = false;
 
 var dialogues = [["Your choice doesn't matter","But Destiny"],
@@ -62,7 +64,7 @@ drawText = function(x=0,defaultPosition=199,text,font="60px Georgia") {
     let a = font.slice(0,2);
     styleText("red",defaultPosition,x,text,a);
     styleText("cyan",defaultPosition,x+2,text,a);
-    styleText("black",defaultPosition,x+1,text,a);
+    styleText("white",defaultPosition,x+1,text,a);
     ctx.restore()
 }
 
