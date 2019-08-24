@@ -8,9 +8,15 @@ stage1 = function() {
     if(player.pressingLeft == true)
         player.s1x-=player.xspd;
     const x = centerPlay("s1x",player.mapSizeS1,1,pressToOpenText,"20px Georgia"); 
-    stayInBoundary("s1x",0,player.mapSizeS1,'map');
+    if(player.s1x + player.width >= 800)
+        holdGun = true;
+    if(holdGun == true)
+        drawGun(x);
+    else
+        drawGun();
+    stayInBoundary("s1x",0,player.mapSizeS1,'S1map');
     for(let i=0;i<4;i++)
-        stayInBoundary("s1x",500+40*i,500+40*i);
+        stayInBoundary("s1x",500+40*i,500+40*i,'block',block[`b${i+1}`]);
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore();
 }
