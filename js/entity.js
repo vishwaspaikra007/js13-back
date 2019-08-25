@@ -13,7 +13,7 @@ player.mapSizeS1 = ctxS.clientWidth;
 var frameTime = 30;
 var enterStage0 = true;
 var enterStage1 = false;
-var dialogues = [["Your choice doesn't matter","But Destiny"],
+var dialogues = [["Your choice doesn't matter","But Destiny","you have 4 choices"],
                 ["Save","My Life Please"],
                 ["The KEY is inside","Come in if you want it"],
                 ["Keep Moving ==>","Forward"],
@@ -24,11 +24,15 @@ var undef = undefined;
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
-block.b1 = true;
-block.b2 = true;
-block.b3 = true;
-block.b4 = false;
 holdGun = false;
+pressedCount = 0;
+blockReset = function() {
+    block.b1 = true;
+    block.b2 = true;
+    block.b3 = true;
+    block.b4 = false;
+}
+blockReset();
 drawMap = function(x=0,mapSize) {
     ctx.drawImage(images.bg, 0, 0, 43, 43, 
         x, -100, mapSize,mapSize );
@@ -159,7 +163,7 @@ drawControlBox = function() {
 drawGun = function(xGun) {
     let x=800,y=250;
     if(holdGun == true) {
-        x=xGun + player.width;
+        x=xGun + player.width*2/3;
         y=180;        
     }
     ctx.save();
