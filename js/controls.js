@@ -19,7 +19,11 @@ document.onkeyup =(event)=> {
             pressedCount = 0;
             blockReset();
             enterStageCheck('enterStage1');
+        } else if(player.x > 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
+            enterStageCheck('enterStage2');
         } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
+            enterStageCheck('enterStage0');
+        } else if(player.s2x > 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
         }
     } 
@@ -47,5 +51,6 @@ document.onkeyup =(event)=> {
 enterStageCheck = function(value) {
     enterStage0 = value=='enterStage0'?true:false;
     enterStage1 = value=='enterStage1'?true:false;
+    enterStage2 = value=='enterStage2'?true:false;
     console.log(enterStage0, enterStage1);
 }

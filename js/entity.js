@@ -13,6 +13,10 @@ player.mapSizeS1 = ctxS.clientWidth;
 var frameTime = 30;
 var enterStage0 = true;
 var enterStage1 = false;
+var enterStage2 = false;
+var enterStage3 = false;
+var enterStage4 = false;
+var enterStage5 = false;
 var dialogues = [["Your choice doesn't matter","But Destiny","you have 4 choices"],
                 ["Save","My Life Please"],
                 ["The KEY is inside","Come in if you want it"],
@@ -43,12 +47,9 @@ drawDoor = function(x=0,defaultPosition=100) {
     ctx.fillRect(defaultPosition+x,100,100,200);
     grd = ctx.createLinearGradient(0.000, 6.000, 900.000, 300.000);
     // Add colors
-    grd.addColorStop(0.100, 'black');
-    grd.addColorStop(0.250, 'white');
-    grd.addColorStop(0.400, 'grey');
-    grd.addColorStop(0.550, 'white');
-    grd.addColorStop(0.700, 'white');
-    grd.addColorStop(0.850, 'grey');
+    grd.addColorStop(0, 'black');
+    grd.addColorStop(0.5, 'white');
+    grd.addColorStop(1, 'black');
     // Fill with gradient
     ctx.fillStyle = grd;
     ctx.fillRect(defaultPosition+10+x,110,80,50);
@@ -79,6 +80,8 @@ styleText = function(color,defaultPosition,x,text,a) {
 drawPlayer = function() {
     if(enterStage1==true) {
         stage1();
+    } else if(enterStage2==true) {
+        stage2();
     } else {
         stage0();
     }
@@ -104,7 +107,8 @@ stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true) => {
     }   
 }
 centerPlay = function(StageX,mapSize,n,text,font) {
-    if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2) {
+    if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 
+        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2) {
         const x = player[StageX] - playerPositionBeforeCenter;
         mapMovement(x,StageX,mapSize,n,text,font);
         playerPositionAfterCenter = player[StageX];
@@ -118,12 +122,15 @@ centerPlay = function(StageX,mapSize,n,text,font) {
     }
 }
 mapMovement = function(x,StageX,mapSize,n=0,text,font) {
-    drawMap(-x,mapSize);
-    if(StageX == "x" || StageX == "s1x") {
+    if(StageX == 's2x')
+        drawColoredMap("red");
+    else
+        drawMap(-x,mapSize);
+    if(StageX != "s3x") {
         for(let i=0;i<n;i++) {
         drawDoor(-x,100*(10*i+1));
         drawText(-x,100*(10*i+1)+100,text[i],font);
-            if(x==0) {
+            if(x==0 && StageX == 'x') {
                 playerPositionBeforeCenter = player.x;
             }
         }
@@ -161,12 +168,12 @@ drawControlBox = function() {
 }
 
 drawGun = function(xGun) {
+    ctx.save();
     let x=800,y=250;
     if(holdGun == true) {
         x=xGun + player.width*2/3;
         y=180;        
     }
-    ctx.save();
     ctx.fillStyle = "black";
     ctx.fillRect(x,y,100,25);
     ctx.fillRect(x+100,y+7.5,20,10);
@@ -175,5 +182,12 @@ drawGun = function(xGun) {
     ctx.rect(x+25,y+25,30,15);
     ctx.stroke();
     ctx.fillRect(x+30,y+25,6,10);
+    ctx.restore();
+}
+
+drawColoredMap = function(x) {
+    ctx.save();
+    ctx.fillStyle = x;
+    ctx.fillRect(0,0,980,300);
     ctx.restore();
 }
