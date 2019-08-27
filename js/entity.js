@@ -8,6 +8,7 @@ player.x = 10;
 player.width = 219*0.5;
 player.height  = 375*0.5;
 player.xspd = 5;
+player.yspd = 5;
 player.mapSize = 43*130;
 player.mapSizeS1 = ctxS.clientWidth;
 var frameTime = 30;
@@ -99,16 +100,23 @@ stage0 = function() {
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore()
 }
-stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true) => {
+stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true,y,mapSizeH) => {
     if(player[StageX] < lowerBound && map=='map')
         player[StageX] = lowerBound;
     if(player[StageX] + player.width >= mapSize && exist == true) {
         player[StageX] = mapSize - player.width;
-    }   
+    }if(y != undef) {
+        console.log(player[y] + player.height,player.height, y ,mapSizeH, "acas")
+        if(player[y] < lowerBound && map=='map')
+            player[y] = lowerBound;
+        if(player[y] + player.height >= mapSizeH) {
+            player[y] = mapSizeH - player.height;
+        }
+    }
 }
 centerPlay = function(StageX,mapSize,n,text,font) {
     if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 
-        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2) {
+        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2 && StageX=="x") {
         const x = player[StageX] - playerPositionBeforeCenter;
         mapMovement(x,StageX,mapSize,n,text,font);
         playerPositionAfterCenter = player[StageX];
@@ -167,12 +175,12 @@ drawControlBox = function() {
     ctx.restore();
 }
 
-drawGun = function(xGun) {
+drawGun = function(xGun,yGun=0) {
     ctx.save();
     let x=800,y=250;
     if(holdGun == true) {
         x=xGun + player.width*2/3;
-        y=180;        
+        y=180 + yGun;        
     }
     ctx.fillStyle = "black";
     ctx.fillRect(x,y,100,25);
@@ -188,6 +196,6 @@ drawGun = function(xGun) {
 drawColoredMap = function(x) {
     ctx.save();
     ctx.fillStyle = x;
-    ctx.fillRect(0,0,980,300);
+    ctx.fillRect(0,0,player.mapSizeWidthS2,player.mapSizeHeightS2);
     ctx.restore();
 }

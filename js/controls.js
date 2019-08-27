@@ -5,6 +5,13 @@ document.onkeydown =(event)=> {
         player.pressingLeft = true;        
     }if(event.keyCode == 16) {
         player.xspd = 20;        
+        player.yspd = 20;        
+    }if(enterStage2 == true) {
+        if(event.keyCode == 87 || event.keyCode == 38) {
+            player.pressingTop = true;
+        }if(event.keyCode == 83 || event.keyCode == 40) {
+            player.pressingBottom = true;        
+        }
     }
 }
 document.onkeyup =(event)=> {
@@ -14,6 +21,7 @@ document.onkeyup =(event)=> {
         player.pressingLeft = false;        
     }if(event.keyCode == 16) {
         player.xspd = 5;        
+        player.yspd = 5;        
     }if(event.keyCode == 13) {
         if(player.x > 100 && player.x < 200 && enterStage0 == true) {
             pressedCount = 0;
@@ -25,8 +33,15 @@ document.onkeyup =(event)=> {
             enterStageCheck('enterStage0');
         } else if(player.s2x > 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
+            defaultSizeCanvas();
         }
-    } 
+    } if(enterStage2 == true) {
+        if(event.keyCode == 87 || event.keyCode == 38) {
+            player.pressingTop = false;
+        }if(event.keyCode == 83 || event.keyCode == 40) {
+            player.pressingBottom = false;        
+        }
+    }
     if(player.s1x + player.width/2 >= 300 && player.s1x + player.width/2 <= 350 && pressedCount < 4) {
     if(event.keyCode == 49) {
         pressedCount++;
@@ -53,4 +68,8 @@ enterStageCheck = function(value) {
     enterStage1 = value=='enterStage1'?true:false;
     enterStage2 = value=='enterStage2'?true:false;
     console.log(enterStage0, enterStage1);
+}
+defaultSizeCanvas = function() {
+    ctxS.width = 900;
+    ctxS.height = 300;
 }
