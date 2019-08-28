@@ -31,7 +31,7 @@ document.onkeyup =(event)=> {
             enterStageCheck('enterStage2');
         } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
-        } else if(player.s2x > 100 && player.s2x < 200  && enterStage2 == true) {
+        } else if(player.s2x >= 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
         }
@@ -62,6 +62,11 @@ document.onkeyup =(event)=> {
         block.b1 = !block.b1;
         block.b4 = !block.b4;
     }}
+    if(event.keyCode == 32) {
+        if(enterStage2==true && holdGun==true) {
+            generateBullet();
+        }       
+    }
 }
 enterStageCheck = function(value) {
     enterStage0 = value=='enterStage0'?true:false;

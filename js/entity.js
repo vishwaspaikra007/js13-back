@@ -1,5 +1,6 @@
 var images = {};
 var player = {};
+var bulletlist = {};
 var playerPositionBeforeCenter = 0;
 var playerPositionAfterCenter = 0;
 var ctx = document.getElementById('canvas').getContext('2d');
@@ -11,6 +12,7 @@ player.xspd = 5;
 player.yspd = 5;
 player.mapSize = 43*130;
 player.mapSizeS1 = ctxS.clientWidth;
+player.aimAngle = 0;
 var frameTime = 30;
 var enterStage0 = true;
 var enterStage1 = false;
@@ -106,7 +108,6 @@ stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true,y,mapSizeH) => {
     if(player[StageX] + player.width >= mapSize && exist == true) {
         player[StageX] = mapSize - player.width;
     }if(y != undef) {
-        console.log(player[y] + player.height,player.height, y ,mapSizeH, "acas")
         if(player[y] < lowerBound && map=='map')
             player[y] = lowerBound;
         if(player[y] + player.height >= mapSizeH) {
@@ -197,5 +198,45 @@ drawColoredMap = function(x) {
     ctx.save();
     ctx.fillStyle = x;
     ctx.fillRect(0,0,player.mapSizeWidthS2,player.mapSizeHeightS2);
+    ctx.restore();
+}
+generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=0) {
+    self = {
+        id: Math.random(),
+        x:x,
+        y:y,
+        height:20,
+        width:20,
+        xspd:15,
+        yspd:0,
+        aimAngle:aimAngle
+    }
+    // self.yspd = Math.cos(self.aimAngle/180*Math.PI)*15;
+    // self.xspd = Math.sin(self.aimAngle/180*Math.PI)*15;
+    self.update = function(obj) {
+        obj.x += obj.xspd;
+        obj.y += obj.yspd;
+        drawBullet(obj.x+player.width/2 + 120,obj.y);
+    }
+    bulletlist[self.id] = self;
+}
+// document.onclick = (mouse)=> {
+//     if(enterStage2==true && holdGun==true) {
+        // mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left;
+        // mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
+        // mouseX-=player.s2x;
+        // mouseY-=player.s2y;
+        // player.aimAngle = Math.atan2(mouseX,mouseY)/Math.PI * 180;
+        // generateBullet(player.s2x,player.s2y,player.aimAngle);
+//         generateBullet();
+//     }
+// }
+drawBullet = function(x,y) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.arc(x, y, 20, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
     ctx.restore();
 }
