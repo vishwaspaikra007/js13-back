@@ -28,6 +28,13 @@ var dialogues = [["Your choice doesn't matter","But Destiny","you have 4 choices
                 "To enter room press shift + upper Arrow"]];
 var controllerText = "controller"; 
 var undef = undefined;
+var targetSpdY = 5;
+var targetY = 0;
+var targetDirectionbool = false;
+var targetColor = 'black';
+var targetHit = 5;
+var spdConst = 1;
+var wallColor = '#ff4444';
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
@@ -132,7 +139,7 @@ centerPlay = function(StageX,mapSize,n,text,font) {
 }
 mapMovement = function(x,StageX,mapSize,n=0,text,font) {
     if(StageX == 's2x')
-        drawColoredMap("red");
+        drawColoredMap("#ffaaaa");
     else
         drawMap(-x,mapSize);
     if(StageX != "s3x") {
@@ -203,7 +210,7 @@ drawColoredMap = function(x) {
 generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=0) {
     self = {
         id: Math.random(),
-        x:x,
+        x:x + player.width/2 + 120,
         y:y,
         height:20,
         width:20,
@@ -214,9 +221,9 @@ generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=
     // self.yspd = Math.cos(self.aimAngle/180*Math.PI)*15;
     // self.xspd = Math.sin(self.aimAngle/180*Math.PI)*15;
     self.update = function(obj) {
-        obj.x += obj.xspd;
-        obj.y += obj.yspd;
-        drawBullet(obj.x+player.width/2 + 120,obj.y);
+        obj.x += obj.xspd*spdConst;
+        obj.y += obj.yspd*spdConst;
+        drawBullet(obj.x , obj.y);
     }
     bulletlist[self.id] = self;
 }
@@ -239,4 +246,50 @@ drawBullet = function(x,y) {
     ctx.fill();
     ctx.stroke();
     ctx.restore();
+}
+drawEnemyWall = function(mapArea) {
+    ctx.save();
+    ctx.fillStyle = wallColor;
+    if(targetHit <=0)
+        targetHit=5;
+    ctx.fillRect(mapArea[0] * targetHit/5,0,mapArea[0],mapArea[1]);
+    ctx.fillStyle = targetColor;
+    ctx.fillRect(mapArea[0] - 20,turnBack(mapArea),20,100);
+    ctx.restore();
+}
+turnBack = function(mapArea) {
+    bulletTargetCollisionCheck(mapArea);
+    if(targetY + 100 >= mapArea[1])
+        targetDirectionbool = true;
+    if(targetY  <= 0)
+        targetDirectionbool = false
+    if(targetDirectionbool)    
+        return targetY -= targetSpdY*spdConst;
+    else
+        return targetY += targetSpdY*spdConst;
+}
+bulletTargetCollisionCheck = function(mapArea) {
+    for(let id in bulletlist) {
+        if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 100) {
+            spdConst = 0.1;
+        } 
+        console.log(frameTime);
+        if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 10 && bulletlist[id].x <= mapArea[0]) {
+            if(bulletlist[id].y + bulletlist[id].height >= targetY && bulletlist[id].y <= targetY + 100) {
+                delete bulletlist[id];
+                spdConst = 1;        
+                targetSpdY += 5;
+                for(let i=0;i<=5;i++) {
+                    setTimeout(() => {
+                        targetColor = targetColor == 'black'?'red':'black';    
+                        wallColor = wallColor == '#ff4444'?'#ffaaaa':'#ff4444'                  
+                    }, 200*i);
+                }
+            } else {
+                delete bulletlist[id];
+                spdConst = 1;        
+                targetHit--;
+            }
+        }
+    }
 }
