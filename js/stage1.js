@@ -1,6 +1,8 @@
 player.s1x = 100;
-TextS1 = [["Press 1 to open 1st bar","and 2nd to open second bar and so on",
-                    "understand the pattern and unlock it"]];
+TextS1 = [["Go to the controller and",
+            "Press 1 to open 1st bar","and 2nd to open second bar and so on",
+            "Press 'r' to rest the position of bars",
+            "understand the pattern and unlock it"]];
 stage1 = function() {
     ctx.save();
     if(player.pressingRight == true)
@@ -16,7 +18,7 @@ stage1 = function() {
         drawGun();
     stayInBoundary("s1x",0,player.mapSizeS1,'map');
     for(let i=0;i<4;i++)
-        stayInBoundary("s1x",500+40*i,500+40*i,'block',block[`b${i+1}`]);
+        stayInBoundary("s1x",blockInitialPosition+40*i,blockInitialPosition+40*i,'block',block[`b${i+1}`]);
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore();
 }

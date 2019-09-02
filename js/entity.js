@@ -20,9 +20,11 @@ var enterStage2 = false;
 var enterStage3 = false;
 var enterStage4 = false;
 var enterStage5 = false;
-var dialogues = [["Your choice doesn't matter","But Destiny","you have 4 choices"],
-                ["Save","My Life Please"],
-                ["The KEY is inside","Come in if you want it"],
+var controllerLimit = 4;
+var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and get"
+                        ,"4 choices and 4 chances"],
+                ["HIT the target thrice","you have only 5 choices"],
+                ["Complete the other two","Before Entering this room"],
                 ["Keep Moving ==>","Forward"],
                 ["Press shift to move faster and go back to play game",
                 "To enter room press shift + upper Arrow"]];
@@ -32,9 +34,11 @@ var targetSpdY = 5;
 var targetY = 0;
 var targetDirectionbool = false;
 var targetColor = 'black';
-var targetHit = 5;
+var totalBullets = 5;
+var targetHit = 4;
 var spdConst = 1;
-var wallColor = '#ff4444';
+var wallColor = '#990000';
+var blockInitialPosition = 600;
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
@@ -42,11 +46,11 @@ holdGun = false;
 pressedCount = 0;
 blockReset = function() {
     block.b1 = true;
-    block.b2 = true;
+    block.b2 = false;
     block.b3 = true;
     block.b4 = false;
+    controllerLimit=4;
 }
-blockReset();
 drawMap = function(x=0,mapSize) {
     ctx.drawImage(images.bg, 0, 0, 43, 43, 
         x, -100, mapSize,mapSize );
@@ -72,7 +76,7 @@ drawDoor = function(x=0,defaultPosition=100) {
     ctx.stroke();
     ctx.restore();
 }
-drawText = function(x=0,defaultPosition=199,text,font="60px Georgia") {
+drawText = function(x=0,defaultPosition=199,text,font="30px Georgia") {
     ctx.save();
     ctx.font = font;
     let a = font.slice(0,2);
@@ -92,6 +96,8 @@ drawPlayer = function() {
         stage1();
     } else if(enterStage2==true) {
         stage2();
+    } else if(enterStage3==true && targetHit<=0) {
+        stage3();
     } else {
         stage0();
     }
@@ -139,7 +145,7 @@ centerPlay = function(StageX,mapSize,n,text,font) {
 }
 mapMovement = function(x,StageX,mapSize,n=0,text,font) {
     if(StageX == 's2x')
-        drawColoredMap("#ffaaaa");
+        drawColoredMap("#ff4444");
     else
         drawMap(-x,mapSize);
     if(StageX != "s3x") {
@@ -163,21 +169,25 @@ drawBlock = function() {
     ctx.fillStyle = grd;
     for(let i=0;i<4;i++) {
         if(block[`b${i+1}`] == true)
-            ctx.fillRect(500+40*i,0,30,358);
+            ctx.fillRect(blockInitialPosition+40*i,0,30,358);
+    }
+    ctx.fillStyle = "#555";
+    for(let i=0;i<4;i++) {
+        ctx.fillRect(blockInitialPosition+40*i,0,30,50);
     }
     ctx.restore();
 }
 drawControlBox = function() {
     ctx.save();
     ctx.fillStyle = "grey";
-    ctx.fillRect(300,200,50,100);
+    ctx.fillRect(500,200,50,100);
     ctx.lineWidth = "2";
-    ctx.rect(310,210,30,80);
+    ctx.rect(510,210,30,80);
     ctx.font = "10px Georgia";
     ctx.fillStyle = "black";
     for(let i=0;i<controllerText.length;i+=2) {
-        ctx.fillText(controllerText.charAt(i),317,220+8*i);
-        ctx.fillText(controllerText.charAt(i+1),326,220+8*i);
+        ctx.fillText(controllerText.charAt(i),517,220+8*i);
+        ctx.fillText(controllerText.charAt(i+1),526,220+8*i);
     }
     ctx.stroke();
     ctx.restore();
@@ -249,19 +259,24 @@ drawBullet = function(x,y) {
 }
 drawEnemyWall = function(mapArea) {
     ctx.save();
-    ctx.fillStyle = wallColor;
-    if(targetHit <=0)
-        targetHit=5;
-    ctx.fillRect(mapArea[0] * targetHit/5,0,mapArea[0],mapArea[1]);
-    ctx.fillStyle = targetColor;
-    ctx.fillRect(mapArea[0] - 20,turnBack(mapArea),20,100);
-    ctx.restore();
+    if(targetHit) {
+        ctx.fillStyle = wallColor;
+        if(totalBullets <=0) {
+            holdGun = false;
+        }
+        if(totalBullets<0)
+            totalBullets=0;
+        ctx.fillRect(mapArea[0] * totalBullets/5,0,mapArea[0],mapArea[1]);
+        ctx.fillStyle = targetColor;
+        ctx.fillRect(mapArea[0] - 20,turnBack(mapArea),20,100);
+        ctx.restore();
+    }
 }
 turnBack = function(mapArea) {
     bulletTargetCollisionCheck(mapArea);
     if(targetY + 100 >= mapArea[1])
         targetDirectionbool = true;
-    if(targetY  <= 0)
+    if(targetY  < 0)
         targetDirectionbool = false
     if(targetDirectionbool)    
         return targetY -= targetSpdY*spdConst;
@@ -274,22 +289,24 @@ bulletTargetCollisionCheck = function(mapArea) {
             spdConst = 0.1;
         } 
         console.log(frameTime);
-        if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 10 && bulletlist[id].x <= mapArea[0]) {
-            if(bulletlist[id].y + bulletlist[id].height >= targetY && bulletlist[id].y <= targetY + 100) {
+        if(targetHit) {
+            if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 10 && bulletlist[id].x <= mapArea[0]
+            && bulletlist[id].y + bulletlist[id].height >= targetY && bulletlist[id].y <= targetY + 100) {
                 delete bulletlist[id];
                 spdConst = 1;        
                 targetSpdY += 5;
+                targetHit--;
                 for(let i=0;i<=5;i++) {
                     setTimeout(() => {
-                        targetColor = targetColor == 'black'?'red':'black';    
-                        wallColor = wallColor == '#ff4444'?'#ffaaaa':'#ff4444'                  
+                        targetColor = targetColor == 'black'?'#990000':'black';    
+                        wallColor = wallColor == '#990000'?'#ff4444':'#990000'                  
                     }, 200*i);
                 }
-            } else {
+            } else if(bulletlist[id].x >= mapArea[0]) {
                 delete bulletlist[id];
                 spdConst = 1;        
-                targetHit--;
+                totalBullets--;
             }
-        }
+        } 
     }
 }
