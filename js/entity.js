@@ -20,9 +20,10 @@ var enterStage2 = false;
 var enterStage3 = false;
 var enterStage4 = false;
 var enterStage5 = false;
-var controllerLimit = 4;
-var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and get"
-                        ,"4 choices and 4 chances"],
+var controllerLimit = 6;
+var controllerResetLimit = 2;
+var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and"
+                        ,"unlock the gun that you need for stage 2"],
                 ["HIT the target thrice","you have only 5 choices"],
                 ["Complete the other two","Before Entering this room"],
                 ["Keep Moving ==>","Forward"],
@@ -39,17 +40,24 @@ var targetHit = 4;
 var spdConst = 1;
 var wallColor = '#990000';
 var blockInitialPosition = 600;
+var showText1 = true;  
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
 holdGun = false;
-pressedCount = 0;
-blockReset = function() {
-    block.b1 = true;
-    block.b2 = false;
-    block.b3 = true;
-    block.b4 = false;
-    controllerLimit=4;
+blockReset = function(limit=1) {
+    if(controllerResetLimit > 0){
+        block.b1 = true;
+        block.b2 = false;
+        block.b3 = true;
+        block.b4 = false;
+        controllerLimit=6;
+        controllerResetLimit--;
+    } else {
+        controller.shuffle();
+        controllerResetLimit=2;
+        blockReset();
+    }
 }
 drawMap = function(x=0,mapSize) {
     ctx.drawImage(images.bg, 0, 0, 43, 43, 
@@ -96,7 +104,7 @@ drawPlayer = function() {
         stage1();
     } else if(enterStage2==true) {
         stage2();
-    } else if(enterStage3==true && targetHit<=0) {
+    } else if(enterStage3==true) {
         stage3();
     } else {
         stage0();
@@ -150,8 +158,8 @@ mapMovement = function(x,StageX,mapSize,n=0,text,font) {
         drawMap(-x,mapSize);
     if(StageX != "s3x") {
         for(let i=0;i<n;i++) {
-        drawDoor(-x,100*(10*i+1));
-        drawText(-x,100*(10*i+1)+100,text[i],font);
+            drawDoor(-x,100*(10*i+1));
+            drawText(-x,100*(10*i+1)+100,text[i],font);
             if(x==0 && StageX == 'x') {
                 playerPositionBeforeCenter = player.x;
             }
@@ -237,17 +245,19 @@ generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=
     }
     bulletlist[self.id] = self;
 }
-// document.onclick = (mouse)=> {
-//     if(enterStage2==true && holdGun==true) {
-        // mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left;
-        // mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
+document.onclick = (mouse)=> {
+    // if(enterStage2==true && holdGun==true) {
+        mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left;
+        mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
         // mouseX-=player.s2x;
         // mouseY-=player.s2y;
         // player.aimAngle = Math.atan2(mouseX,mouseY)/Math.PI * 180;
         // generateBullet(player.s2x,player.s2y,player.aimAngle);
-//         generateBullet();
-//     }
-// }
+        // generateBullet();
+    // }
+        if(mouseX>ctxS.width-55 && mouseX<ctxS.width && mouseY<55 && mouseY>0)
+            showText1 = false;
+}
 drawBullet = function(x,y) {
     ctx.save();
     ctx.beginPath();
@@ -292,7 +302,7 @@ bulletTargetCollisionCheck = function(mapArea) {
         if(targetHit) {
             if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 10 && bulletlist[id].x <= mapArea[0]
             && bulletlist[id].y + bulletlist[id].height >= targetY && bulletlist[id].y <= targetY + 100) {
-                delete bulletlist[id];
+                delete bulletlist[id];targetHit
                 spdConst = 1;        
                 targetSpdY += 5;
                 targetHit--;
@@ -309,4 +319,21 @@ bulletTargetCollisionCheck = function(mapArea) {
             }
         } 
     }
+}
+infoBox = function(text) {
+    ctx.save();
+    ctx.fillStyle = "black";
+    ctx.font = "25px Georgia";
+    ctx.fillRect(0,0,ctxS.width,ctxS.height);
+    ctx.fillStyle= "white";
+    for(let i=0;i<text[0].length;i++){
+        ctx.fillText(text[0][i],20,30*(i+1));
+    }
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(ctxS.width-30, 30, 25, 0, 2 * Math.PI, true);
+    ctx.fill();
+    ctx.fillStyle = "white";
+    ctx.fillText("X",ctxS.width-40, 38);
+    ctx.restore();
 }

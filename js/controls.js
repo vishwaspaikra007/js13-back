@@ -44,12 +44,14 @@ document.onkeyup =(event)=> {
         } else if(player.x > 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
             if(targetHit || totalBullets<=0)
                 totalBullets = 5;
-            targetHit = 4;
+            if(targetHit)
+                targetHit = 4;
             enterStageCheck('enterStage2');        
         } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage3');        
         } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
+            showText1 = !showText1;
         } else if(player.s2x >= 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
@@ -91,6 +93,9 @@ document.onkeyup =(event)=> {
         if(enterStage2==true && holdGun==true) {
             generateBullet();
         }       
+    }
+    if(event.keyCode == 73) {
+        showText1=!showText1;        
     }
 }
 enterStageCheck = function(value) {
