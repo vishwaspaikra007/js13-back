@@ -1,7 +1,29 @@
+player.s3x = 100;
+player.s3y = 120;
+targetY1 = 0;
+targetY2 = 0;
+targetY3 = 0;
 stage3 = function() {
     ctx.save();
-    ctx.fillStyle = "green";
-    ctx.fillRect(0,0,ctxS.clientWidth,ctxS.clientHeight);
+    if(player.pressingTop == true)
+        player.s3y-=player.yspd;
+    if(player.pressingBottom == true)
+        player.s3y+=player.yspd;
+    let mapArea = newSizeCanvas();
+    const x = centerPlay("s3x",player.mapSizeWidthS2,1,TextS2,"20px Georgia");
+    // drawEnemyWall(mapArea);
+    drawObstacles(mapArea);
+    stayInBoundary("s3x",0,player.mapSizeWidthS2,'map',true,"s3y",mapArea[1]);
+    if(holdGun == true)
+        drawGun(x,player.s3y-180 + player.height/3);
+    for(let id in bulletlist) {
+        bulletlist[id].update(bulletlist[id]);
+    }
+    ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,player.s3y,player.width,player.height); 
     ctx.restore();
     
+}
+drawObstacles = function(mapArea) {
+    for(let i=1;i<4;i++)
+        ctx.drawImage(images.bg,mapArea[0]-70-i*40,turnBack(mapArea,`s3y${i}`,`s3y${i}spd`,`s3x${i}`,"obstacle"),20,100);
 }

@@ -24,15 +24,18 @@ var controllerLimit = 6;
 var controllerResetLimit = 2;
 var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and"
                         ,"unlock the gun that you need for stage 2"],
-                ["HIT the target thrice","you have only 5 choices"],
+                ["HIT the target thrice","you can make only 5 mistakes"],
                 ["Complete the other two","Before Entering this room"],
                 ["Keep Moving ==>","Forward"],
                 ["Press shift to move faster and go back to play game",
                 "To enter room press shift + upper Arrow"]];
 var controllerText = "controller"; 
 var undef = undefined;
-var targetSpdY = 5;
-var targetY = 0;
+var targets = {
+    s2y:0,s2yspd:5,s3y1:0,s3y2:250,s3y3:400,s3y1spd:5,s3y2spd:6,s3y3spd:7,
+    s2x:1270,s3x1:1170,s3x2:1130,s3x3:1090
+};
+// targets as well as obstacles i mean
 var targetDirectionbool = false;
 var targetColor = 'black';
 var totalBullets = 5;
@@ -156,7 +159,7 @@ mapMovement = function(x,StageX,mapSize,n=0,text,font) {
         drawColoredMap("#ff4444");
     else
         drawMap(-x,mapSize);
-    if(StageX != "s3x") {
+    if(StageX != "s4x") {
         for(let i=0;i<n;i++) {
             drawDoor(-x,100*(10*i+1));
             drawText(-x,100*(10*i+1)+100,text[i],font);
@@ -200,7 +203,6 @@ drawControlBox = function() {
     ctx.stroke();
     ctx.restore();
 }
-
 drawGun = function(xGun,yGun=0) {
     ctx.save();
     let x=800,y=250;
@@ -218,7 +220,6 @@ drawGun = function(xGun,yGun=0) {
     ctx.fillRect(x+30,y+25,6,10);
     ctx.restore();
 }
-
 drawColoredMap = function(x) {
     ctx.save();
     ctx.fillStyle = x;
@@ -269,42 +270,39 @@ drawBullet = function(x,y) {
 }
 drawEnemyWall = function(mapArea) {
     ctx.save();
-    if(targetHit) {
-        ctx.fillStyle = wallColor;
-        if(totalBullets <=0) {
-            holdGun = false;
-        }
-        if(totalBullets<0)
-            totalBullets=0;
-        ctx.fillRect(mapArea[0] * totalBullets/5,0,mapArea[0],mapArea[1]);
-        ctx.fillStyle = targetColor;
-        ctx.fillRect(mapArea[0] - 20,turnBack(mapArea),20,100);
-        ctx.restore();
+    ctx.fillStyle = wallColor;
+    if(totalBullets <=0) {
+        holdGun = false;
     }
+    if(totalBullets<0)
+        totalBullets=0;
+    ctx.fillRect(mapArea[0] * totalBullets/5,0,mapArea[0],mapArea[1]);
+    ctx.fillStyle = targetColor;
+    ctx.fillRect(mapArea[0] - 20,turnBack(mapArea,"s2y","s2yspd","s2x"),20,100);
+    ctx.restore();
 }
-turnBack = function(mapArea) {
-    bulletTargetCollisionCheck(mapArea);
-    if(targetY + 100 >= mapArea[1])
-        targetDirectionbool = true;
-    if(targetY  < 0)
-        targetDirectionbool = false
-    if(targetDirectionbool)    
-        return targetY -= targetSpdY*spdConst;
+turnBack = function(mapArea,y,spd,x,obj="target") {
+    bulletTargetCollisionCheck(mapArea,y,spd,x,obj);
+    if(targets[y] + 100 >= mapArea[1])
+        targets[spd] = -targets[spd];
+    if(targets[y]  < 0)
+        targets[spd] = -targets[spd];
+    if(targetDirectionbool)
+        return targets[y] -= targets[spd]*spdConst;
     else
-        return targetY += targetSpdY*spdConst;
+        return targets[y] += targets[spd]*spdConst;
 }
-bulletTargetCollisionCheck = function(mapArea) {
+bulletTargetCollisionCheck = function(mapArea,y,spd,x,obj) {
     for(let id in bulletlist) {
-        if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 100) {
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] - 100) {
             spdConst = 0.1;
         } 
-        console.log(frameTime);
-        if(targetHit) {
-            if(bulletlist[id].x + bulletlist[id].width >= mapArea[0] - 10 && bulletlist[id].x <= mapArea[0]
-            && bulletlist[id].y + bulletlist[id].height >= targetY && bulletlist[id].y <= targetY + 100) {
-                delete bulletlist[id];targetHit
-                spdConst = 1;        
-                targetSpdY += 5;
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x <= targets[x] + 10
+        && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y <= targets[y] + 100) {
+            delete bulletlist[id];
+            spdConst = 1;        
+            if(targetHit) {
+                targets[spd] += targets[spd];
                 targetHit--;
                 for(let i=0;i<=5;i++) {
                     setTimeout(() => {
@@ -312,11 +310,11 @@ bulletTargetCollisionCheck = function(mapArea) {
                         wallColor = wallColor == '#990000'?'#ff4444':'#990000'                  
                     }, 200*i);
                 }
-            } else if(bulletlist[id].x >= mapArea[0]) {
-                delete bulletlist[id];
-                spdConst = 1;        
-                totalBullets--;
-            }
+            } 
+        } else if(bulletlist[id].x >= ctxS.width) {
+            delete bulletlist[id];
+            spdConst = 1;        
+            totalBullets--;
         } 
     }
 }

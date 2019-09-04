@@ -20,7 +20,7 @@ document.onkeydown =(event)=> {
     }if(event.keyCode == 16) {
         player.xspd = 20;        
         player.yspd = 20;        
-    }if(enterStage2 == true) {
+    }if(enterStage3 == true) {
         if(event.keyCode == 87 || event.keyCode == 38) {
             player.pressingTop = true;
         }if(event.keyCode == 83 || event.keyCode == 40) {
@@ -33,6 +33,12 @@ document.onkeyup =(event)=> {
         player.pressingRight = false;
     }if(event.keyCode == 65 || event.keyCode == 37) {
         player.pressingLeft = false;        
+    }if(enterStage3 == true) {
+        if(event.keyCode == 87 || event.keyCode == 38) {
+            player.pressingTop = false;
+        }if(event.keyCode == 83 || event.keyCode == 40) {
+            player.pressingBottom = false;        
+        }
     }if(event.keyCode == 16) {
         player.xspd = 5;        
         player.yspd = 5;        
@@ -44,8 +50,10 @@ document.onkeyup =(event)=> {
         } else if(player.x > 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
             if(targetHit || totalBullets<=0)
                 totalBullets = 5;
-            if(targetHit)
+            if(targetHit) {
                 targetHit = 4;
+                targets.s2yspd = 5;
+            }
             enterStageCheck('enterStage2');        
         } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage3');        
@@ -55,15 +63,11 @@ document.onkeyup =(event)=> {
         } else if(player.s2x >= 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
+        } else if(player.s3x >= 100 && player.s3x < 200  && enterStage3 == true) {
+            enterStageCheck('enterStage0');
+            defaultSizeCanvas();
         }
     } 
-    // if(enterStage2 == true) {
-    //     if(event.keyCode == 87 || event.keyCode == 38) {
-    //         player.pressingTop = false;
-    //     }if(event.keyCode == 83 || event.keyCode == 40) {
-    //         player.pressingBottom = false;        
-    //     }
-    // }
     if(player.s1x + player.width/2 >= 500 && player.s1x + player.width/2 <= 550) {
         if(controllerLimit>0) {
             if(event.keyCode == controller[0]) {
@@ -90,7 +94,7 @@ document.onkeyup =(event)=> {
         blockReset();
     }
     if(event.keyCode == 32) {
-        if(enterStage2==true && holdGun==true) {
+        if((enterStage2==true || enterStage3==true) && holdGun==true) {
             generateBullet();
         }       
     }
