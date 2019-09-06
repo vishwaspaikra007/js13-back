@@ -44,8 +44,8 @@ document.onkeyup =(event)=> {
         player.yspd = 5;        
     }if(event.keyCode == 13) {
         if(player.x > 100 && player.x < 200 && enterStage0 == true) {
+            controllerResetLimit=0;
             blockReset();
-            controller.shuffle();
             enterStageCheck('enterStage1');
         } else if(player.x > 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
             if(targetHit || totalBullets<=0)
@@ -57,6 +57,9 @@ document.onkeyup =(event)=> {
             enterStageCheck('enterStage2');        
         } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage3');        
+        }  else if(player.x > 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true && 
+                    fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red') {
+            enterStageCheck('enterStage4');        
         } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
             showText1 = !showText1;
@@ -94,9 +97,12 @@ document.onkeyup =(event)=> {
         blockReset();
     }
     if(event.keyCode == 32) {
-        if((enterStage2==true || enterStage3==true) && holdGun==true) {
+        if(enterStage2==true && holdGun==true) {
+            totalBulletsFired--;
             generateBullet();
-        }       
+        } else if(enterStage3==true && holdGun==true)   
+            generateBullet(player.s3x,player.s3y + player.width*2/3);
+            totalBulletsFired--;
     }
     if(event.keyCode == 73) {
         showText1=!showText1;        

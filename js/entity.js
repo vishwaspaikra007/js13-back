@@ -32,8 +32,10 @@ var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and
 var controllerText = "controller"; 
 var undef = undefined;
 var targets = {
-    s2y:0,s2yspd:5,s3y1:0,s3y2:250,s3y3:400,s3y1spd:5,s3y2spd:6,s3y3spd:7,
-    s2x:1270,s3x1:1170,s3x2:1130,s3x3:1090
+    s2y:0,s2yspd:5,s3y1:0,s3y2:250,s3y3:400,s3y1spd:5,s3y2spd:10,s3y3spd:7,
+    s2x:1270,s3x1:1050,s3x2:970,s3x3:890,
+    s2Width:10,s2Height:100,s3Width:40,s3Height:140,
+    s3Tx:1180,s3T1y:60,s3T2y:260,s3T3y:460,s3TWidth:80,s3THeight:80,s3Txspd:0,s3Tyspd:0
 };
 // targets as well as obstacles i mean
 var targetDirectionbool = false;
@@ -44,11 +46,12 @@ var spdConst = 1;
 var wallColor = '#990000';
 var blockInitialPosition = 600;
 var showText1 = true;  
+var totalBulletsFired = 10;
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
 holdGun = false;
-blockReset = function(limit=1) {
+blockReset = function() {
     if(controllerResetLimit > 0){
         block.b1 = true;
         block.b2 = false;
@@ -103,6 +106,8 @@ styleText = function(color,defaultPosition,x,text,a) {
     }
 }
 drawPlayer = function() {
+    if(!totalBulletsFired)
+        holdGun=false;
     if(enterStage1==true) {
         stage1();
     } else if(enterStage2==true) {
@@ -278,12 +283,12 @@ drawEnemyWall = function(mapArea) {
         totalBullets=0;
     ctx.fillRect(mapArea[0] * totalBullets/5,0,mapArea[0],mapArea[1]);
     ctx.fillStyle = targetColor;
-    ctx.fillRect(mapArea[0] - 20,turnBack(mapArea,"s2y","s2yspd","s2x"),20,100);
+    ctx.fillRect(mapArea[0] - 20,turnBack(mapArea,"s2y","s2yspd","s2x","s2Width","s2Height"),20,100);
     ctx.restore();
 }
-turnBack = function(mapArea,y,spd,x,obj="target") {
-    bulletTargetCollisionCheck(mapArea,y,spd,x,obj);
-    if(targets[y] + 100 >= mapArea[1])
+turnBack = function(mapArea,y,spd,x,eleWidth,eleHeight) {
+    bulletTargetCollisionCheck(y,spd,x,eleWidth,eleHeight);
+    if(targets[y] + targets[eleHeight] >= mapArea[1])
         targets[spd] = -targets[spd];
     if(targets[y]  < 0)
         targets[spd] = -targets[spd];
@@ -292,16 +297,33 @@ turnBack = function(mapArea,y,spd,x,obj="target") {
     else
         return targets[y] += targets[spd]*spdConst;
 }
-bulletTargetCollisionCheck = function(mapArea,y,spd,x,obj) {
+bulletTargetCollisionCheck = function(y,spd,x,eleWidth,eleHeight) {
     for(let id in bulletlist) {
-        if(bulletlist[id].x + bulletlist[id].width >= targets[x] - 100) {
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] - 100 &&
+            bulletlist[id].x <= targets[x] + targets[eleWidth] + 40 &&
+            bulletlist[id].y + bulletlist[id].height >= targets[y] - 40 &&
+            bulletlist[id].y <= targets[y] + targets[eleHeight] + 40) {
             spdConst = 0.1;
         } 
-        if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x <= targets[x] + 10
-        && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y <= targets[y] + 100) {
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x <= targets[x] + targets[eleWidth]
+        && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y <= targets[y] + targets[eleHeight]) {
             delete bulletlist[id];
-            spdConst = 1;        
-            if(targetHit) {
+            spdConst = 1;       
+            if(enterStage3 && eleWidth=="s3TWidth") {
+                fillStyleTargetS3[Number(y.slice(3,4))-1] = "red";
+                console.log(fillStyleTargetS3[Number(y.slice(3,4))]);
+                if(fillStyleTargetS3[0]=="red" &&
+                    fillStyleTargetS3[0]=="red" &&
+                    fillStyleTargetS3[0]=="red") {
+                        for(let i=0;i<=5;i++) {
+                            setTimeout(() => {
+                                for(let i=0;i<3;i++)
+                                    fillStyleTargetS3[i] = fillStyleTargetS3[i]=='red'?'#ff7777':'red';               
+                            }, 200*i);
+                        }
+                    }
+            } 
+            if(targetHit && enterStage2) {
                 targets[spd] += targets[spd];
                 targetHit--;
                 for(let i=0;i<=5;i++) {

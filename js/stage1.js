@@ -18,8 +18,10 @@ stage1 = function() {
         if(player.pressingLeft == true)
             player.s1x-=player.xspd;
         const x = centerPlay("s1x",player.mapSizeS1,1,TextS2,"27px Georgia"); 
-        if(player.s1x + player.width >= 800)
+        if(player.s1x + player.width >= 800) {
+            totalBulletsFired=10;
             holdGun = true;
+        }
         if(holdGun == true)
             drawGun(x);
         else
