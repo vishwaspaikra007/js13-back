@@ -46,7 +46,7 @@ var spdConst = 1;
 var wallColor = '#990000';
 var blockInitialPosition = 600;
 var showText1 = true;  
-var totalBulletsFired = 10;
+var totalBulletsFired = 6;
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
@@ -114,6 +114,10 @@ drawPlayer = function() {
         stage2();
     } else if(enterStage3==true) {
         stage3();
+    } else if(enterStage4==true) {
+        stage4();
+    } else if(enterStage5==true) {
+        stage5();
     } else {
         stage0();
     }
@@ -164,17 +168,16 @@ mapMovement = function(x,StageX,mapSize,n=0,text,font) {
         drawColoredMap("#ff4444");
     else
         drawMap(-x,mapSize);
-    if(StageX != "s4x") {
-        for(let i=0;i<n;i++) {
-            drawDoor(-x,100*(10*i+1));
-            drawText(-x,100*(10*i+1)+100,text[i],font);
-            if(x==0 && StageX == 'x') {
-                playerPositionBeforeCenter = player.x;
-            }
-        }
-    } if(StageX == "s1x") {
+    if(StageX == "s1x") {
         drawBlock();
         drawControlBox();
+    }
+    for(let i=0;i<n;i++) {
+        drawDoor(-x,100*(10*i+1));
+        drawText(-x,100*(10*i+1)+100,text[i],font);
+        if(x==0 && StageX == 'x') {
+            playerPositionBeforeCenter = player.x;
+        }
     }
 }
 drawBlock = function() {
@@ -284,10 +287,10 @@ drawEnemyWall = function(mapArea) {
     ctx.fillRect(mapArea[0] * totalBullets/5,0,mapArea[0],mapArea[1]);
     ctx.fillStyle = targetColor;
     ctx.fillRect(mapArea[0] - 20,turnBack(mapArea,"s2y","s2yspd","s2x","s2Width","s2Height"),20,100);
+    bulletTargetCollisionCheck("s2y","s2yspd","s2x","s2Width","s2Height");
     ctx.restore();
 }
 turnBack = function(mapArea,y,spd,x,eleWidth,eleHeight) {
-    bulletTargetCollisionCheck(y,spd,x,eleWidth,eleHeight);
     if(targets[y] + targets[eleHeight] >= mapArea[1])
         targets[spd] = -targets[spd];
     if(targets[y]  < 0)
@@ -299,10 +302,10 @@ turnBack = function(mapArea,y,spd,x,eleWidth,eleHeight) {
 }
 bulletTargetCollisionCheck = function(y,spd,x,eleWidth,eleHeight) {
     for(let id in bulletlist) {
-        if(bulletlist[id].x + bulletlist[id].width >= targets[x] - 100 &&
-            bulletlist[id].x <= targets[x] + targets[eleWidth] + 40 &&
-            bulletlist[id].y + bulletlist[id].height >= targets[y] - 40 &&
-            bulletlist[id].y <= targets[y] + targets[eleHeight] + 40) {
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] - 50 &&
+            bulletlist[id].x <= targets[x] + targets[eleWidth] + 30 &&
+            bulletlist[id].y + bulletlist[id].height >= targets[y] - 30 &&
+            bulletlist[id].y <= targets[y] + targets[eleHeight] + 30) {
             spdConst = 0.1;
         } 
         if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x <= targets[x] + targets[eleWidth]

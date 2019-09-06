@@ -55,11 +55,16 @@ document.onkeyup =(event)=> {
                 targets.s2yspd = 5;
             }
             enterStageCheck('enterStage2');        
-        } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true) {
+        } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true 
+        // && !targetHit
+        ) {
             enterStageCheck('enterStage3');        
-        }  else if(player.x > 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true && 
-                    fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red') {
+        } else if(player.x > 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
+                // && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
+                ){
             enterStageCheck('enterStage4');        
+        } else if(player.x > 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
+            enterStageCheck('enterStage5');        
         } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
             showText1 = !showText1;
@@ -67,6 +72,12 @@ document.onkeyup =(event)=> {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
         } else if(player.s3x >= 100 && player.s3x < 200  && enterStage3 == true) {
+            enterStageCheck('enterStage0');
+            defaultSizeCanvas();
+        }  else if(player.s4x >= 100 && player.s4x < 200  && enterStage4 == true) {
+            enterStageCheck('enterStage0');
+            defaultSizeCanvas();
+        } else if(player.s5x >= 100 && player.s5x < 200  && enterStage5 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
         }
@@ -113,6 +124,8 @@ enterStageCheck = function(value) {
     enterStage1 = value=='enterStage1'?true:false;
     enterStage2 = value=='enterStage2'?true:false;
     enterStage3 = value=='enterStage3'?true:false;
+    enterStage4 = value=='enterStage4'?true:false;
+    enterStage5 = value=='enterStage5'?true:false;
     console.log(enterStage0, enterStage1);
 }
 defaultSizeCanvas = function() {

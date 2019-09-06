@@ -6,6 +6,7 @@ targetY3 = 0;
 fillStyleTargetS3 = ['#ff7777','#ff7777','#ff7777'];
 stage3 = function() {
     ctx.save();
+    TextS2 = [["HIT the three circular bubbles"]];
     if(player.pressingTop == true)
         player.s3y-=player.yspd;
     if(player.pressingBottom == true)
@@ -26,8 +27,12 @@ stage3 = function() {
     
 }
 drawObstacles = function(mapArea) {
-    for(let i=1;i<4;i++)
-        ctx.drawImage(images.bg,mapArea[0]-150-i*targets.s3Width*2,turnBack(mapArea,`s3y${i}`,`s3y${i}spd`,`s3x${i}`,"s3Width","s3Height"),targets.s3Width,targets.s3Height);
+    for(let i=1;i<4;i++) {
+        ctx.drawImage(images.bg,mapArea[0]-150-i*targets.s3Width*2,
+            turnBack(mapArea,`s3y${i}`,`s3y${i}spd`,`s3x${i}`,"s3Width","s3Height"),
+            targets.s3Width,targets.s3Height);
+        bulletTargetCollisionCheck(`s3y${i}`,`s3y${i}spd`,`s3x${i}`,"s3Width","s3Height");
+    }
 }
 
 drawTarget = function(mapArea) {
