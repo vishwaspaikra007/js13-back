@@ -1,8 +1,8 @@
 var images = {};
 var player = {};
 var bulletlist = {};
-var playerPositionBeforeCenter = 0;
-var playerPositionAfterCenter = 0;
+var playerPositionBeforeCenter = {x:0,s4x:0,s4y:0};
+var playerPositionAfterCenter = {x:0,s4x:0,s4y:0};
 var ctx = document.getElementById('canvas').getContext('2d');
 var ctxS = document.getElementById('canvas');
 player.x = 10;
@@ -65,14 +65,23 @@ blockReset = function() {
         blockReset();
     }
 }
-drawMap = function(x=0,mapSize) {
-    ctx.drawImage(images.bg, 0, 0, 43, 43, 
-        x, -100, mapSize,mapSize );
+var tgl=true;
+drawMap = function(x=0,mapSize,y=0) {
+    let startPostionx = 0;
+    let startPostiony = 0;
+    if(enterStage0==true) {
+        startPostiony = startPostionx = tgl==true?0:0.5;
+        tgl=!tgl;
+        x+=startPostionx;
+        y+=startPostiony;
+    }
+    ctx.drawImage(images.bg, startPostionx, startPostiony, 43, 43, 
+        x, y, mapSize,mapSize );
 }
-drawDoor = function(x=0,defaultPosition=100) {
+drawDoor = function(x=0,defaultPosition=100,y=0) {
     ctx.save();
     ctx.fillStyle = '#8b4513';
-    ctx.fillRect(defaultPosition+x,100,100,200);
+    ctx.fillRect(defaultPosition+x,100+y,100,200);
     grd = ctx.createLinearGradient(0.000, 6.000, 900.000, 300.000);
     // Add colors
     grd.addColorStop(0, 'black');
@@ -80,9 +89,9 @@ drawDoor = function(x=0,defaultPosition=100) {
     grd.addColorStop(1, 'black');
     // Fill with gradient
     ctx.fillStyle = grd;
-    ctx.fillRect(defaultPosition+10+x,110,80,50);
+    ctx.fillRect(defaultPosition+10+x,110+y,80,50);
     ctx.beginPath();
-    ctx.arc(defaultPosition+15+x, 200, 7, 0, 2 * Math.PI, false);
+    ctx.arc(defaultPosition+15+x, 200+y, 7, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'grey';
     ctx.fill();
     ctx.lineWidth = 2;
@@ -90,19 +99,19 @@ drawDoor = function(x=0,defaultPosition=100) {
     ctx.stroke();
     ctx.restore();
 }
-drawText = function(x=0,defaultPosition=199,text,font="30px Georgia") {
+drawText = function(x=0,defaultPosition=199,text,font="30px Georgia",y=0) {
     ctx.save();
     ctx.font = font;
     let a = font.slice(0,2);
-    styleText("red",defaultPosition,x,text,a);
-    styleText("blue",defaultPosition,x+2,text,a);
-    styleText("white",defaultPosition,x+1,text,a);
+    styleText("red",defaultPosition,x,text,a,y);
+    styleText("blue",defaultPosition,x+2,text,a,y);
+    styleText("white",defaultPosition,x+1,text,a,y);
     ctx.restore()
 }
-styleText = function(color,defaultPosition,x,text,a) {
+styleText = function(color,defaultPosition,x,text,a,y) {
     ctx.fillStyle = color;
     for(let i=0;i<text.length;i++) {
-        ctx.fillText(text[i], defaultPosition+x, 150+Number(a)*i);
+        ctx.fillText(text[i], defaultPosition+x, y+150+Number(a)*i);
     }
 }
 drawPlayer = function() {
@@ -128,7 +137,8 @@ stage0 = function() {
         player.x+=player.xspd;
     if(player.pressingLeft == true)
         player.x-=player.xspd;
-    const x = centerPlay("x",player.mapSize,5,dialogues); 
+    const x = centerPlay("x",player.mapSize); 
+    mapMovement(xMovement,"x",player.mapSize,5,dialogues);
     stayInBoundary("x",0,player.mapSize,'map');
     if(holdGun == true)
         drawGun(x);
@@ -148,36 +158,61 @@ stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true,y,mapSizeH) => {
         }
     }
 }
-centerPlay = function(StageX,mapSize,n,text,font) {
+var xMovement;
+var yMovement;
+centerPlay = function(StageX,mapSize) {
     if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 
-        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2 && StageX=="x") {
-        const x = player[StageX] - playerPositionBeforeCenter;
-        mapMovement(x,StageX,mapSize,n,text,font);
-        playerPositionAfterCenter = player[StageX];
+        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2 && (StageX=="x" || StageX=="s4x")) {
+        xMovement = player[StageX] - playerPositionBeforeCenter[StageX];
+        playerPositionAfterCenter[StageX] = player[StageX];
         return ctxS.clientWidth/2 - player.width/2;
-    } else if(player[StageX] + player.width/2 >= mapSize - ctxS.clientWidth/2 && StageX=="x") {
-        mapMovement(playerPositionAfterCenter - playerPositionBeforeCenter,StageX,mapSize,n,text,font);
-        return player[StageX]-playerPositionAfterCenter + ctxS.clientWidth/2 - player.width/2;
+    } else if(player[StageX] + player.width/2 >= mapSize - ctxS.clientWidth/2 && (StageX=="x" || StageX=="s4x")) {
+        xMovement = playerPositionAfterCenter[StageX] - playerPositionBeforeCenter[StageX];
+        return player[StageX]-playerPositionAfterCenter[StageX] + ctxS.clientWidth/2 - player.width/2;
     } else {
-        mapMovement(0,StageX,mapSize,n,text,font);
+        xMovement = 0;
         return player[StageX];
     }
 }
-mapMovement = function(x,StageX,mapSize,n=0,text,font) {
+// for vertical center play
+centerPlayY = function(StageY,mapSize) {
+    if(player[StageY] + player.height/2 >= ctxS.clientHeight/2 
+        && player[StageY] + player.height/2 < mapSize - ctxS.clientHeight/2 && StageY=="s4y") {
+        yMovement = player[StageY] - playerPositionBeforeCenter[StageY];
+        playerPositionAfterCenter[StageY] = player[StageY];
+        return ctxS.clientHeight/2 - player.height/2;
+    } else if(player[StageY] + player.height/2 >= mapSize - ctxS.clientHeight/2 && StageY=="s4y") {
+        yMovement = playerPositionAfterCenter[StageY] - playerPositionBeforeCenter[StageY];
+        return player[StageY]-playerPositionAfterCenter[StageY] + ctxS.clientHeight/2 - player.height/2;
+    } else {
+        yMovement = 0;
+        return player[StageY];
+    }
+}
+mapMovement = function(x,StageX,mapSize,n=0,text,font,y=0,StageY="") {
     if(StageX == 's2x')
         drawColoredMap("#ff4444");
     else
-        drawMap(-x,mapSize);
+        drawMap(-x,mapSize,-y);
     if(StageX == "s1x") {
         drawBlock();
         drawControlBox();
     }
     for(let i=0;i<n;i++) {
-        drawDoor(-x,100*(10*i+1));
-        drawText(-x,100*(10*i+1)+100,text[i],font);
-        if(x==0 && StageX == 'x') {
-            playerPositionBeforeCenter = player.x;
+        drawDoor(-x,100*(10*i+1),-y);
+        drawText(-x,100*(10*i+1)+100,text[i],font,-y);
+        if(x==0 && (StageX == 'x' || StageX == "s4x")) {
+            playerPositionBeforeCenter[StageX] = player[StageX];
         }
+        if(y==0 && StageY == "s4y") {
+            playerPositionBeforeCenter[StageY] = player[StageY];
+        }
+    }
+}
+mapMovementY = function(y,StageY,mapSize) {
+    drawMap(-y,mapSize);
+    if(y==0 && StageX == "s4y") {
+        playerPositionBeforeCenter[StageY] = player[StageY];
     }
 }
 drawBlock = function() {
@@ -308,8 +343,8 @@ bulletTargetCollisionCheck = function(y,spd,x,eleWidth,eleHeight) {
             bulletlist[id].y <= targets[y] + targets[eleHeight] + 30) {
             spdConst = 0.1;
         } 
-        if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x <= targets[x] + targets[eleWidth]
-        && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y <= targets[y] + targets[eleHeight]) {
+        if(bulletlist[id].x + bulletlist[id].width >= targets[x] && bulletlist[id].x - bulletlist[id].width<= targets[x] + targets[eleWidth]
+        && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y - bulletlist[id].height <= targets[y] + targets[eleHeight]) {
             delete bulletlist[id];
             spdConst = 1;       
             if(enterStage3 && eleWidth=="s3TWidth") {

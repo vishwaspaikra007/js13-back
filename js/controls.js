@@ -20,7 +20,7 @@ document.onkeydown =(event)=> {
     }if(event.keyCode == 16) {
         player.xspd = 20;        
         player.yspd = 20;        
-    }if(enterStage3 == true) {
+    }if(enterStage3 == true || enterStage4 == true) {
         if(event.keyCode == 87 || event.keyCode == 38) {
             player.pressingTop = true;
         }if(event.keyCode == 83 || event.keyCode == 40) {
@@ -33,7 +33,7 @@ document.onkeyup =(event)=> {
         player.pressingRight = false;
     }if(event.keyCode == 65 || event.keyCode == 37) {
         player.pressingLeft = false;        
-    }if(enterStage3 == true) {
+    }if(enterStage3 == true || enterStage4 == true) {
         if(event.keyCode == 87 || event.keyCode == 38) {
             player.pressingTop = false;
         }if(event.keyCode == 83 || event.keyCode == 40) {
@@ -43,11 +43,11 @@ document.onkeyup =(event)=> {
         player.xspd = 5;        
         player.yspd = 5;        
     }if(event.keyCode == 13) {
-        if(player.x > 100 && player.x < 200 && enterStage0 == true) {
+        if(player.x >= 100 && player.x <= 200 && enterStage0 == true) {
             controllerResetLimit=0;
             blockReset();
             enterStageCheck('enterStage1');
-        } else if(player.x > 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
+        } else if(player.x >= 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
             if(targetHit || totalBullets<=0)
                 totalBullets = 5;
             if(targetHit) {
@@ -55,17 +55,17 @@ document.onkeyup =(event)=> {
                 targets.s2yspd = 5;
             }
             enterStageCheck('enterStage2');        
-        } else if(player.x > 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true 
+        } else if(player.x >= 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true 
         // && !targetHit
         ) {
             enterStageCheck('enterStage3');        
-        } else if(player.x > 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
+        } else if(player.x >= 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
                 // && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
                 ){
             enterStageCheck('enterStage4');        
-        } else if(player.x > 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
+        } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage5');        
-        } else if(player.s1x > 100 && player.s1x < 200  && enterStage1 == true) {
+        } else if(player.s1x >= 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
             showText1 = !showText1;
         } else if(player.s2x >= 100 && player.s2x < 200  && enterStage2 == true) {

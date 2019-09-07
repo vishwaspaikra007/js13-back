@@ -7,7 +7,8 @@ stage5 = function() {
         player.s5x+=player.xspd;
     if(player.pressingLeft == true)
         player.s5x-=player.xspd;
-    const x = centerPlay("s5x",player.mapSizeS1,1,TextS2,"27px Georgia"); 
+    const x = centerPlay("s5x",player.mapSizeS1);
+    mapMovement(xMovement,"s5x",player.mapSize,1,TextS2,"27px Georgia");
     if(holdGun == true)
         drawGun(x);
     stayInBoundary("s5x",0,player.mapSizeS1,'map');

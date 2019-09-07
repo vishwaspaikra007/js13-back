@@ -6,7 +6,8 @@ stage2 = function() {
                     `NO. of times you have to hit the moving black box : ${targetHit}`,
                     "To enter the third round"]];
     let mapArea = newSizeCanvas();
-    const x = centerPlay("s2x",player.mapSizeWidthS2,1,TextS2,"20px Georgia");
+    const x = centerPlay("s2x",player.mapSizeWidthS2);
+    mapMovement(xMovement,"s2x",player.mapSize,1,TextS2,"27px Georgia");
     if(targetHit)
         drawEnemyWall(mapArea);
     // stayInBoundary("s2x",0,player.mapSizeWidthS2,'map',true,"s2y",mapArea[1]);

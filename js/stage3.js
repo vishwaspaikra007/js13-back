@@ -12,7 +12,8 @@ stage3 = function() {
     if(player.pressingBottom == true)
         player.s3y+=player.yspd;
     let mapArea = newSizeCanvas();
-    const x = centerPlay("s3x",player.mapSizeWidthS2,1,TextS2,"20px Georgia");
+    const x = centerPlay("s3x",player.mapSizeWidthS2);
+    mapMovement(xMovement,"s3x",player.mapSize,1,TextS2,"20px Georgia");
     // drawEnemyWall(mapArea);
     drawObstacles(mapArea);
     drawTarget(mapArea);
