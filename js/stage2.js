@@ -14,7 +14,7 @@ stage2 = function() {
     if(holdGun == true)
         drawGun(x,player.s2y-180 + player.height/3);
     for(let id in bulletlist) {
-        bulletlist[id].update(bulletlist[id]);
+        bulletlist[id].update(bulletlist[id],"s2");
     }
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,player.s2y,player.width,player.height); 
     ctx.restore();

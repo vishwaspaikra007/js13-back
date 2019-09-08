@@ -62,6 +62,7 @@ document.onkeyup =(event)=> {
         } else if(player.x >= 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
                 // && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
                 ){
+            randomBlockGenerator();
             enterStageCheck('enterStage4');        
         } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage5');        
@@ -108,12 +109,13 @@ document.onkeyup =(event)=> {
         blockReset();
     }
     if(event.keyCode == 32) {
-        if(enterStage2==true && holdGun==true) {
-            totalBulletsFired--;
-            generateBullet();
-        } else if(enterStage3==true && holdGun==true)   
-            generateBullet(player.s3x,player.s3y + player.width*2/3);
-            totalBulletsFired--;
+        if(enterStage2==true && holdGun==true)
+            generateBullet(player.s2x,player.s2y + player.width*2/3,"s2");
+        else if(enterStage3==true && holdGun==true)   
+            generateBullet(player.s3x,player.s3y + player.width*2/3,"s3");
+        else if(enterStage4==true && holdGun==true)
+            generateBullet(player.s4x,player.s4y + player.width*2/3,"s4");
+        totalBulletsFired--;
     }
     if(event.keyCode == 73) {
         showText1=!showText1;        

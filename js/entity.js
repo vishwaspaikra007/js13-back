@@ -269,9 +269,10 @@ drawColoredMap = function(x) {
     ctx.fillRect(0,0,player.mapSizeWidthS2,player.mapSizeHeightS2);
     ctx.restore();
 }
-generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=0) {
+generateBullet = function(x,y,from,aimAngle=0) {
     self = {
         id: Math.random(),
+        from:from,
         x:x + player.width/2 + 120,
         y:y,
         height:20,
@@ -282,10 +283,12 @@ generateBullet = function(x=player.s2x,y=player.s2y + player.width*2/3,aimAngle=
     }
     // self.yspd = Math.cos(self.aimAngle/180*Math.PI)*15;
     // self.xspd = Math.sin(self.aimAngle/180*Math.PI)*15;
-    self.update = function(obj) {
-        obj.x += obj.xspd*spdConst;
-        obj.y += obj.yspd*spdConst;
-        drawBullet(obj.x , obj.y);
+    self.update = function(obj,from,xMovement=0,yMovement=0) {
+        if(obj.from == from) {
+            obj.x += obj.xspd*spdConst;
+            obj.y += obj.yspd*spdConst;
+            drawBullet(obj.x , obj.y,xMovement,yMovement);
+        }
     }
     bulletlist[self.id] = self;
 }
@@ -302,11 +305,11 @@ document.onclick = (mouse)=> {
         if(mouseX>ctxS.width-55 && mouseX<ctxS.width && mouseY<55 && mouseY>0)
             showText1 = false;
 }
-drawBullet = function(x,y) {
+drawBullet = function(x,y,xMovement,yMovement) {
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = "red";
-    ctx.arc(x, y, 20, 0, 2 * Math.PI);
+    ctx.arc(x+xMovement, y+yMovement, 20, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
