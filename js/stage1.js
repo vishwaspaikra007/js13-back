@@ -20,7 +20,7 @@ stage1 = function() {
         const x = centerPlay("s1x",player.mapSizeS1); 
         mapMovement(xMovement,"s1x",player.mapSize,1,TextS2,"27px Georgia");
         if(player.s1x + player.width >= 800) {
-            totalBulletsFired=10;
+            totalBulletsFired=6;
             holdGun = true;
         }
         if(holdGun == true)
