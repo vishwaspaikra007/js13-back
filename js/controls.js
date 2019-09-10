@@ -40,8 +40,10 @@ document.onkeyup =(event)=> {
             player.pressingBottom = false;        
         }
     }if(event.keyCode == 16) {
-        player.xspd = 5;        
-        player.yspd = 5;        
+        setTimeout(() => {
+            player.xspd = 5;        
+            player.yspd = 5; 
+        }, 200);       
     }if(event.keyCode == 13) {
         if(player.x >= 100 && player.x <= 200 && enterStage0 == true) {
             controllerResetLimit=0;
@@ -63,6 +65,8 @@ document.onkeyup =(event)=> {
                 // && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
                 ){
             randomBlockGenerator();
+            generateButtons();
+            wallBoundaries();
             enterStageCheck('enterStage4');        
         } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage5');        
@@ -77,6 +81,10 @@ document.onkeyup =(event)=> {
             defaultSizeCanvas();
         }  else if(player.s4x >= 100 && player.s4x < 200  && enterStage4 == true) {
             enterStageCheck('enterStage0');
+            blocks = {};
+            gates = {}
+            buttons = {}
+            walls = {};
             defaultSizeCanvas();
         } else if(player.s5x >= 100 && player.s5x < 200  && enterStage5 == true) {
             enterStageCheck('enterStage0');
