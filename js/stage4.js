@@ -2,19 +2,32 @@ player.s4x = 100;
 player.s4y = 120;
 //good for x not for y always + 1
 // v,h,v,h,v,v,h,v,h
-string = [[13,0,15,12,0],[0,9,9,12,0],[20,5,22,12,0],[0,18,2,21,1],[3,18,12,21,0],[13,12,15,46,0],
-            [20,12,22,52,0],[3,43,13,46,0],[34,0,36,38,0],[34,38,36,42,1],[23,42,26,46,1],[27,42,51,46,0],
-            [46,0,51,5,1]];
-blocks = {};
-gates = {};
-buttons = {};
-walls = {};
+var string = [[13,0,15,12,0],[0,9,9,12,0],[20,5,22,12,0],[0,18,2,21,1],[3,18,12,21,0],[13,12,15,46,0],
+            [20,12,22,52,0],[3,43,13,46,0],[34,0,36,38,0],[34,38,36,42,2],[23,42,26,46,3],[27,42,51,46,0],
+            [46,0,51,5,4]];
+var blocks = {};
+var gate1 = [];
+var gate2 = [];
+var gate3 = [];
+var gate4 = [];
+var blockGate = [];
+var gates = {}
+var buttonsSet1 = [];
+var gateAccessProhibition1 = true;
+var buttonsSet2 = [];
+var gateAccessProhibition2 = true;
+var buttonsSet3 = [];
+var gateAccessProhibition3 = true;
+var buttons = {};
+var walls = {};
 
-buttonString = [[6,15],[8,15],[10,15],[12,15],
-                [26,38],[28,38],[30,38],[32,38],[41,1],[45,1],[43,3],[41,5],[45,5]];
-wallString = [[13,0,3,46],[0,9,10,3],[20,5,3,47],[0,18,3,3],[3,18,9,3,],[3,43,10,3],[34,0,3,38],
-                [34,38,3,4],[23,42,4,4],[27,42,24,4],[46,0,6,5]]
-blockSpeed=30;
+var buttonString = [[6,15,1,0],[8,15,1,1],[10,15,1,2],[12,15,1,3],
+                [26,38,2,0],[28,38,2,1],[30,38,2,2],[32,38,2,3],
+                [41,1,3,0],[45,1,3,1],[43,3,3,2],[41,5,3,3],[45,5,3,4]];
+var wallString = [[13,0,3,46,0],[0,9,10,3,0],[20,5,3,47,0],[0,18,3,3,1],[3,18,9,3,0],[3,43,10,3,0],[34,0,3,38,0],
+                [34,38,3,4,2],[23,42,4,4,3],[27,42,24,4,0],[46,0,6,5,4]]
+var blockSpeed=20;
+var deleteSpeed=60;
 stage4 = function() {
     ctx.save();
     TextS1 = [["Welcome to stage 4"]];
@@ -33,12 +46,6 @@ stage4 = function() {
         mapMovement(xMovement,"s4x",player.mapSize,1,TextS2,"27px Georgia",yMovement,"s4y");        
         stayInBoundary("s4x",0,mapArea[0]*2,'map',true,"s4y",mapArea[0]*2);
         drawTrack(xMovement,yMovement);
-        setInterval(() => {
-            for(let id in buttons) {
-                if(buttons[id].blink)
-                    buttons[id].fill = buttons[id].fill=="#ff7777"?"red":"#ff7777"; 
-            }
-        }, 300);
         drawMovingBubbles(9,38,-xMovement,-yMovement);
         if(holdGun == true)
             drawGun(x,y-180+player.height/3);
@@ -75,6 +82,8 @@ wallBoundaries = function() {
                     player.s4x += player.xspd==20?20:5;
         }
         walls[self.id] = self;
+        if(wallString[i][4])
+            blockGate[wallString[i][4]-1] = self.id;
     }
 }
 drawTrack = function(x,y) {
@@ -82,13 +91,36 @@ drawTrack = function(x,y) {
         blocks[id].update(blocks[id],x,y);
     }
     for(let id in gates) {
-        gates[id].update(gates[id],x,y)
-    }
+            gates[id].update(gates[id],x,y)
+        }
     for(let id in buttons) {
         buttons[id].update(buttons[id],x,y);
     }
     for(let id in walls) {
         walls[id].update(walls[id]);
+    }
+    if(buttons[buttonsSet1[0]].blink && buttons[buttonsSet1[1]].blink && 
+        buttons[buttonsSet1[2]].blink && buttons[buttonsSet1[3]].blink &&
+        gateAccessProhibition1) {
+            gateAccessProhibition1=false;
+            delete walls[blockGate[0]];
+            delB(gate1);
+    }
+    if(buttons[buttonsSet2[0]].blink && buttons[buttonsSet2[1]].blink && 
+        buttons[buttonsSet2[2]].blink && buttons[buttonsSet2[3]].blink &&
+        gateAccessProhibition2) {
+            gateAccessProhibition2=false;
+            delete walls[blockGate[1]];
+            delete walls[blockGate[2]];
+            delB(gate2)
+            delB(gate3);
+    }
+    if(buttons[buttonsSet3[0]].blink && buttons[buttonsSet3[1]].blink && 
+        buttons[buttonsSet3[2]].blink && buttons[buttonsSet3[3]].blink 
+        && buttons[buttonsSet3[3]].blink && gateAccessProhibition3) {
+            gateAccessProhibition3=false;
+            delete walls[blockGate[3]];
+            delB(gate4);
     }
 }
 randomBlockGenerator = function() {
@@ -96,9 +128,10 @@ randomBlockGenerator = function() {
         var i = string[h][0];
         var j =  string[h][1];
         var k = true;
+        var gateBlockCounter = 0;
         var a = setInterval(() => {
         var color = string[h][4]==0?"#e14c21":"purple";
-        generateBlock(i,j,color);
+        generateBlock(i,j,color,string[h][4],gateBlockCounter);
         if(k==true)
             i++;
         else
@@ -113,10 +146,12 @@ randomBlockGenerator = function() {
             i++;
             j++;
         }
+        gateBlockCounter++;
         if(j==string[h][3]) {
             if(++h < string.length) {
                 i = string[h][0];
                 j =  string[h][1];
+                gateBlockCounter = 0;
                 k = true;
             } 
             else
@@ -124,7 +159,7 @@ randomBlockGenerator = function() {
         }
     }, blockSpeed);
 }
-generateBlock = function(x,y,color,width=40,height=40) {
+generateBlock = function(x,y,color,gateNo,gateBlockCounter,width=40,height=40) {
     ctx.save();
     self = {
         id:Math.random(),x:x,y:y,width:width,height:height,color:color
@@ -135,7 +170,15 @@ generateBlock = function(x,y,color,width=40,height=40) {
         ctx.fillRect(obj.x*50-x,obj.y*50-y,obj.width,obj.height);
         ctx.restore();
     }
-    if(color=="purple")
+    if(gateNo==1)
+        gate1[gateBlockCounter]=self.id;
+    else if(gateNo==2)
+        gate2[gateBlockCounter]=self.id;
+    else if(gateNo==3)
+        gate3[gateBlockCounter]=self.id;
+    else if(gateNo==4)
+        gate4[gateBlockCounter]=self.id;
+    if(gateNo)
         gates[self.id]=self;
     else
         blocks[self.id]=self;
@@ -143,10 +186,30 @@ generateBlock = function(x,y,color,width=40,height=40) {
 }
 generateButtons = function() {
     for(let i=0;i<buttonString.length;i++) {
-        drawButtons(buttonString[i][0],buttonString[i][1]);
+        drawButtons(buttonString[i][0],buttonString[i][1],buttonString[i][2],buttonString[i][3]);
     }
+    var blinkBtn = setInterval(() => {
+        // for(let id in buttonsSet1) {
+        //     if(buttonsSet1[id].blink)
+        //         buttonsSet1[id].fill = buttonsSet1[id].fill=="#ff7777"?"red":"#ff7777"; 
+        // }
+        // for(let id in buttonsSet2) {
+        //     if(buttonsSet2[id].blink)
+        //         buttonsSet2[id].fill = buttonsSet2[id].fill=="#ff7777"?"red":"#ff7777"; 
+        // }
+        // for(let id in buttonsSet3) {
+        //     if(buttonsSet3[id].blink)
+        //         buttonsSet3[id].fill = buttonsSet3[id].fill=="#ff7777"?"red":"#ff7777"; 
+        // }
+        for(let id in buttons) {
+            if(buttons[id].blink)
+                buttons[id].fill = buttons[id].fill=="#ff7777"?"red":"#ff7777"; 
+        }
+        if(!enterStage4)
+            clearInterval(blinkBtn);
+    }, 300);
 }
-drawButtons = function(x,y) {
+drawButtons = function(x,y,z,indexPos) {
     self = {
         id:Math.random(),
         x:x,y:y,fill:"#ff7777",
@@ -162,9 +225,13 @@ drawButtons = function(x,y) {
         ctx.stroke();
         ctx.restore();
     }
+    if(z==1)
+        buttonsSet1[indexPos] = self.id;
+    else if(z==2)
+        buttonsSet2[indexPos] = self.id;
+    else if(z==3)
+        buttonsSet3[indexPos] = self.id;
     buttons[self.id] = self;
-}
-blockBoundary = function() {
     
 }
 // blockBoundary = function() {
@@ -199,20 +266,14 @@ blockBoundary = function() {
 //     }
 // }
 //...........................................................................
-arr =[];
-i=0;
-k=0;
-cntB = function() {
-    for(let id in blocks)
-        arr[i++]= id;
-}
-delB = function() {
-    ca = setInterval(() => {
-        delete blocks[arr[k]];
-        k++;
-        if(k>arr.length)
-            clearInterval(ca);
-    }, blockSpeed);
+delB = function(blockSet) {
+    let deleteSetIntervalVar;
+    let gateBlockCnt=0;
+    deleteSetIntervalVar = setInterval(() => {
+        delete gates[blockSet[gateBlockCnt++]];
+        if(gateBlockCnt>=blockSet.length)
+            clearInterval(deleteSetIntervalVar);
+    }, deleteSpeed);
 }
 // ..........................................................................
 var radius = 110;

@@ -67,6 +67,7 @@ document.onkeyup =(event)=> {
             randomBlockGenerator();
             generateButtons();
             wallBoundaries();
+            holdGun=false;
             enterStageCheck('enterStage4');        
         } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true) {
             enterStageCheck('enterStage5');        
@@ -79,11 +80,12 @@ document.onkeyup =(event)=> {
         } else if(player.s3x >= 100 && player.s3x < 200  && enterStage3 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
-        }  else if(player.s4x >= 100 && player.s4x < 200  && enterStage4 == true) {
+        }  else if(player.s4x >= 100 && player.s4x < 200  && enterStage4 == true &&
+                    player.s4y + player.height >= 100 && player.s4y <= 300) {
             enterStageCheck('enterStage0');
             blocks = {};
-            gates = {}
-            buttons = {}
+            gates = {};
+            buttons = {};
             walls = {};
             defaultSizeCanvas();
         } else if(player.s5x >= 100 && player.s5x < 200  && enterStage5 == true) {

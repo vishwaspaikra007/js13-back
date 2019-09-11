@@ -236,6 +236,7 @@ drawControlBox = function() {
     ctx.fillStyle = "grey";
     ctx.fillRect(500,200,50,100);
     ctx.lineWidth = "2";
+    ctx.beginPath();
     ctx.rect(510,210,30,80);
     ctx.font = "10px Georgia";
     ctx.fillStyle = "black";
@@ -258,6 +259,7 @@ drawGun = function(xGun,yGun=0) {
     ctx.fillRect(x+100,y+7.5,20,10);
     ctx.fillRect(x,y+25,25,25);
     ctx.lineWidth = "5";
+    ctx.beginPath();
     ctx.rect(x+25,y+25,30,15);
     ctx.stroke();
     ctx.fillRect(x+30,y+25,6,10);
@@ -302,8 +304,15 @@ document.onclick = (mouse)=> {
         // generateBullet(player.s2x,player.s2y,player.aimAngle);
         // generateBullet();
     // }
-        if(mouseX>ctxS.width-55 && mouseX<ctxS.width && mouseY<55 && mouseY>0)
+        if(mouseX>ctxS.width-55 && mouseX<ctxS.width && mouseY<55 && mouseY>0 && enterStage1)
             showText1 = false;
+        for(let id in buttons) {
+            // alert(mouseY+yMovement + " hell " + `${buttons[id].y*50 - 40}`);
+            if(mouseX+xMovement >= buttons[id].x*50 - 40 && mouseX+xMovement <= buttons[id].x*50 + 40 &&
+                mouseY+yMovement >=buttons[id].y*50 -40 && mouseY+yMovement <=buttons[id].y*50 + 40) {
+                    buttons[id].blink = true;
+                }
+        }
 }
 drawBullet = function(x,y,xMovement,yMovement) {
     ctx.save();
