@@ -1,8 +1,9 @@
 var images = {};
 var player = {};
 var bulletlist = {};
-var playerPositionBeforeCenter = {x:0,s4x:0,s4y:0};
-var playerPositionAfterCenter = {x:0,s4x:0,s4y:0};
+var buttons = {};
+var playerPositionBeforeCenter = {x:0,s4x:0,s4y:0,s5x:0};
+var playerPositionAfterCenter = {x:0,s4x:0,s4y:0,s5x:0};
 var ctx = document.getElementById('canvas').getContext('2d');
 var ctxS = document.getElementById('canvas');
 player.x = 10;
@@ -22,11 +23,13 @@ var enterStage4 = false;
 var enterStage5 = false;
 var controllerLimit = 6;
 var controllerResetLimit = 2;
+var buttonLimit=6;
+var buttonResetLimit=2;
 var dialogues = [["Your choice doesn't matter","But Destiny","Enter the room and"
                         ,"unlock the gun that you need for stage 2"],
                 ["HIT the target thrice","you can make only 5 mistakes"],
                 ["Complete the other two","Before Entering this room"],
-                ["Keep Moving ==>","Forward"],
+                ["Keep Moving ==>","Forward","You will go BACK-ward"],
                 ["Press shift to move faster and go back to play game",
                 "To enter room press shift + upper Arrow"]];
 var controllerText = "controller"; 
@@ -47,10 +50,12 @@ var wallColor = '#990000';
 var blockInitialPosition = 600;
 var showText1 = true;  
 var totalBulletsFired = 6;
+var blink3;
 images.bg = new Image();
 images.bg.src = './img/bg.png';
 var block={};
-holdGun = false;
+var holdGun = false;
+var holdKey = false;
 blockReset = function() {
     if(controllerResetLimit > 0){
         block.b1 = true;
@@ -78,10 +83,10 @@ drawMap = function(x=0,mapSize,y=0) {
     ctx.drawImage(images.bg, startPostionx, startPostiony, 43, 43, 
         x, y, mapSize,mapSize );
 }
-drawDoor = function(x=0,defaultPosition=100,y=0) {
+drawDoor = function(x=0,defaultPosition=100,y=0,defaultY=100) {
     ctx.save();
     ctx.fillStyle = '#8b4513';
-    ctx.fillRect(defaultPosition+x,100+y,100,200);
+    ctx.fillRect(defaultPosition+x,defaultY+y,100,200);
     grd = ctx.createLinearGradient(0.000, 6.000, 900.000, 300.000);
     // Add colors
     grd.addColorStop(0, 'black');
@@ -89,9 +94,9 @@ drawDoor = function(x=0,defaultPosition=100,y=0) {
     grd.addColorStop(1, 'black');
     // Fill with gradient
     ctx.fillStyle = grd;
-    ctx.fillRect(defaultPosition+10+x,110+y,80,50);
+    ctx.fillRect(defaultPosition+10+x,defaultY+10+y,80,50);
     ctx.beginPath();
-    ctx.arc(defaultPosition+15+x, 200+y, 7, 0, 2 * Math.PI, false);
+    ctx.arc(defaultPosition+15+x, defaultY+100+y, 7, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'grey';
     ctx.fill();
     ctx.lineWidth = 2;
@@ -99,19 +104,19 @@ drawDoor = function(x=0,defaultPosition=100,y=0) {
     ctx.stroke();
     ctx.restore();
 }
-drawText = function(x=0,defaultPosition=199,text,font="30px Georgia",y=0) {
+drawText = function(x=0,defaultPosition=199,text,font="30px Georgia",y=0,defaultY=150,fontSize=1) {
     ctx.save();
     ctx.font = font;
     let a = font.slice(0,2);
-    styleText("red",defaultPosition,x,text,a,y);
-    styleText("blue",defaultPosition,x+2,text,a,y);
-    styleText("white",defaultPosition,x+1,text,a,y);
+    styleText("red",defaultPosition,x,text,a*fontSize,y,defaultY);
+    styleText("blue",defaultPosition,x+2,text,a*fontSize,y,defaultY);
+    styleText("white",defaultPosition,x+1,text,a*fontSize,y,defaultY);
     ctx.restore()
 }
-styleText = function(color,defaultPosition,x,text,a,y) {
+styleText = function(color,defaultPosition,x,text,a,y,defaultY) {
     ctx.fillStyle = color;
     for(let i=0;i<text.length;i++) {
-        ctx.fillText(text[i], defaultPosition+x, y+150+Number(a)*i);
+        ctx.fillText(text[i], defaultPosition+x, y+defaultY+Number(a)*i);
     }
 }
 drawPlayer = function() {
@@ -130,6 +135,7 @@ drawPlayer = function() {
     } else {
         stage0();
     }
+    drawText(0,ctxS.width-250,[`Game Over in ${gmin}:${gsec}`],"30px Georgia",0,20);
 }
 stage0 = function() {
     ctx.save();
@@ -142,8 +148,17 @@ stage0 = function() {
     stayInBoundary("x",0,player.mapSize,'map');
     if(holdGun == true)
         drawGun(x);
+    if(holdKey == true)
+        drawKey(x,y-180+player.height/3);
+    boundaryStage5();
     ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,120,player.width,player.height);
     ctx.restore()
+}
+boundaryStage5 = function() {
+    if(player.x + player.width > 3400 && player.x < 3400)
+        player.x = 2640;
+    if(player.x < 3500 && player.x + player.width > 3500)
+        player.x=3500;
 }
 stayInBoundary = (StageX,lowerBound,mapSize,map,exist=true,y,mapSizeH) => {
     if(player[StageX] < lowerBound && map=='map')
@@ -162,11 +177,13 @@ var xMovement;
 var yMovement;
 centerPlay = function(StageX,mapSize) {
     if(player[StageX] + player.width/2 >= ctxS.clientWidth/2 
-        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2 && (StageX=="x" || StageX=="s4x")) {
+        && player[StageX] + player.width/2 < mapSize - ctxS.clientWidth/2 && 
+        (StageX=="x" || StageX=="s4x" || StageX == "s5x")) {
         xMovement = player[StageX] - playerPositionBeforeCenter[StageX];
         playerPositionAfterCenter[StageX] = player[StageX];
         return ctxS.clientWidth/2 - player.width/2;
-    } else if(player[StageX] + player.width/2 >= mapSize - ctxS.clientWidth/2 && (StageX=="x" || StageX=="s4x")) {
+    } else if(player[StageX] + player.width/2 >= mapSize - ctxS.clientWidth/2 && 
+        (StageX=="x" || StageX=="s4x" || StageX == "s5x")) {
         xMovement = playerPositionAfterCenter[StageX] - playerPositionBeforeCenter[StageX];
         return player[StageX]-playerPositionAfterCenter[StageX] + ctxS.clientWidth/2 - player.width/2;
     } else {
@@ -197,17 +214,21 @@ mapMovement = function(x,StageX,mapSize,n=0,text,font,y=0,StageY="") {
     if(StageX == "s1x") {
         drawBlock();
         drawControlBox();
-    }
+    } 
+    if(StageX == "s5x")
+        drawBlock(200,600,xMovement);
     for(let i=0;i<n;i++) {
         drawDoor(-x,100*(10*i+1),-y);
         drawText(-x,100*(10*i+1)+100,text[i],font,-y);
-        if(x==0 && (StageX == 'x' || StageX == "s4x")) {
+        if(x==0 && (StageX == 'x' || StageX == "s4x" || StageX == "s5x")) {
             playerPositionBeforeCenter[StageX] = player[StageX];
         }
         if(y==0 && StageY == "s4y") {
             playerPositionBeforeCenter[StageY] = player[StageY];
         }
     }
+    if(StageY == "s4y")
+        drawDoor(-x,2350,-y,2363);
 }
 mapMovementY = function(y,StageY,mapSize) {
     drawMap(-y,mapSize);
@@ -215,7 +236,7 @@ mapMovementY = function(y,StageY,mapSize) {
         playerPositionBeforeCenter[StageY] = player[StageY];
     }
 }
-drawBlock = function() {
+drawBlock = function(x=0,height=358,xMovement=0) {
     ctx.save();
     var grd = ctx.createLinearGradient(0,0,980,0);
     for(let i=0;i<980;i+=100)
@@ -223,11 +244,11 @@ drawBlock = function() {
     ctx.fillStyle = grd;
     for(let i=0;i<4;i++) {
         if(block[`b${i+1}`] == true)
-            ctx.fillRect(blockInitialPosition+40*i,0,30,358);
+            ctx.fillRect(x+blockInitialPosition+40*i-xMovement,0,30,height);
     }
     ctx.fillStyle = "#555";
     for(let i=0;i<4;i++) {
-        ctx.fillRect(blockInitialPosition+40*i,0,30,50);
+        ctx.fillRect(x+blockInitialPosition+40*i-xMovement,0,30,50);
     }
     ctx.restore();
 }
@@ -309,8 +330,62 @@ document.onclick = (mouse)=> {
         for(let id in buttons) {
             // alert(mouseY+yMovement + " hell " + `${buttons[id].y*50 - 40}`);
             if(mouseX+xMovement >= buttons[id].x*50 - 40 && mouseX+xMovement <= buttons[id].x*50 + 40 &&
-                mouseY+yMovement >=buttons[id].y*50 -40 && mouseY+yMovement <=buttons[id].y*50 + 40) {
-                    buttons[id].blink = true;
+                mouseY+yMovement >=buttons[id].y*50 -40 && mouseY+yMovement <=buttons[id].y*50 + 40 &&
+                buttonLimit>0 ) {
+                    buttonLimit--;
+                    if(buttonsSet1[0]==id) {
+                        buttons[buttonsSet1[0]].blink = !buttons[buttonsSet1[0]].blink;
+                        buttons[buttonsSet1[1]].blink = !buttons[buttonsSet1[1]].blink;
+                        buttons[buttonsSet1[3]].blink = !buttons[buttonsSet1[3]].blink;
+                    }else if(buttonsSet1[1]==id) {
+                        buttons[buttonsSet1[1]].blink = !buttons[buttonsSet1[1]].blink;
+                        buttons[buttonsSet1[3]].blink = !buttons[buttonsSet1[3]].blink;
+                    }else if(buttonsSet1[2]==id) {
+                        buttons[buttonsSet1[0]].blink = !buttons[buttonsSet1[0]].blink;
+                        buttons[buttonsSet1[1]].blink = !buttons[buttonsSet1[1]].blink;
+                        buttons[buttonsSet1[2]].blink = !buttons[buttonsSet1[2]].blink;
+                    }else if(buttonsSet1[3]==id) {
+                        buttons[buttonsSet1[0]].blink = !buttons[buttonsSet1[0]].blink;
+                        buttons[buttonsSet1[3]].blink = !buttons[buttonsSet1[3]].blink;
+                    }else if(buttonsSet2[0]==id) {
+                        buttons[buttonsSet2[0]].blink = !buttons[buttonsSet2[0]].blink;
+                        buttons[buttonsSet2[1]].blink = !buttons[buttonsSet2[1]].blink;
+                        buttons[buttonsSet2[3]].blink = !buttons[buttonsSet2[3]].blink;
+                    }else if(buttonsSet2[1]==id) {
+                        buttons[buttonsSet2[1]].blink = !buttons[buttonsSet2[1]].blink;
+                        buttons[buttonsSet2[3]].blink = !buttons[buttonsSet2[3]].blink;
+                    }else if(buttonsSet2[2]==id) {
+                        buttons[buttonsSet2[0]].blink = !buttons[buttonsSet2[0]].blink;
+                        buttons[buttonsSet2[1]].blink = !buttons[buttonsSet2[1]].blink;
+                        buttons[buttonsSet2[2]].blink = !buttons[buttonsSet2[2]].blink;
+                    }else if(buttonsSet2[3]==id) {
+                        buttons[buttonsSet2[0]].blink = !buttons[buttonsSet2[0]].blink;
+                        buttons[buttonsSet2[3]].blink = !buttons[buttonsSet2[3]].blink;
+                    }else if(buttonsSet3[0]==id) {
+                        buttons[buttonsSet3[0]].blink = !buttons[buttonsSet3[0]].blink;
+                        buttons[buttonsSet3[1]].blink = !buttons[buttonsSet3[1]].blink;
+                        buttons[buttonsSet3[3]].blink = !buttons[buttonsSet3[3]].blink;
+                        buttons[buttonsSet3[4]].blink = !buttons[buttonsSet3[4]].blink;
+                    }else if(buttonsSet3[1]==id) {
+                        buttons[buttonsSet3[1]].blink = !buttons[buttonsSet3[1]].blink;
+                        buttons[buttonsSet3[3]].blink = !buttons[buttonsSet3[3]].blink;
+                        buttons[buttonsSet3[4]].blink = !buttons[buttonsSet3[4]].blink;
+                    }else if(buttonsSet3[2]==id) {
+                        buttons[buttonsSet3[0]].blink = !buttons[buttonsSet3[0]].blink;
+                        buttons[buttonsSet3[1]].blink = !buttons[buttonsSet3[1]].blink;
+                        buttons[buttonsSet3[2]].blink = !buttons[buttonsSet3[2]].blink;
+                        buttons[buttonsSet3[4]].blink = !buttons[buttonsSet3[4]].blink;
+                    }else if(buttonsSet3[3]==id) {
+                        buttons[buttonsSet3[0]].blink = !buttons[buttonsSet3[0]].blink;
+                        buttons[buttonsSet3[3]].blink = !buttons[buttonsSet3[3]].blink;
+                        buttons[buttonsSet3[4]].blink = !buttons[buttonsSet3[4]].blink;
+                    }else if(buttonsSet3[4]==id) {
+                        buttons[buttonsSet3[0]].blink = !buttons[buttonsSet3[0]].blink;
+                        buttons[buttonsSet3[1]].blink = !buttons[buttonsSet3[1]].blink;
+                        buttons[buttonsSet3[2]].blink = !buttons[buttonsSet3[2]].blink;
+                        buttons[buttonsSet3[3]].blink = !buttons[buttonsSet3[3]].blink;
+                        buttons[buttonsSet3[4]].blink = !buttons[buttonsSet3[4]].blink;
+                    }
                 }
         }
 }
@@ -359,18 +434,21 @@ bulletTargetCollisionCheck = function(y,spd,x,eleWidth,eleHeight) {
         && bulletlist[id].y + bulletlist[id].height >= targets[y] && bulletlist[id].y - bulletlist[id].height <= targets[y] + targets[eleHeight]) {
             delete bulletlist[id];
             spdConst = 1;       
-            if(enterStage3 && eleWidth=="s3TWidth") {
+            if((enterStage3 || enterStage5)&& eleWidth=="s3TWidth") {
                 fillStyleTargetS3[Number(y.slice(3,4))-1] = "red";
-                console.log(fillStyleTargetS3[Number(y.slice(3,4))]);
-                if(fillStyleTargetS3[0]=="red" &&
-                    fillStyleTargetS3[0]=="red" &&
-                    fillStyleTargetS3[0]=="red") {
-                        for(let i=0;i<=5;i++) {
-                            setTimeout(() => {
-                                for(let i=0;i<3;i++)
-                                    fillStyleTargetS3[i] = fillStyleTargetS3[i]=='red'?'#ff7777':'red';               
-                            }, 200*i);
-                        }
+                for(let i=0;i<=5;i++) {
+                    setTimeout(() => {
+                        for(let i=0;i<3;i++)
+                            fillStyleTargetS3[i] = fillStyleTargetS3[i]=='red'?'#ff7777':'red';               
+                    }, 200*i);
+                }
+                if(fillStyleTargetS3[0]=="red" && fillStyleTargetS3[1]=="red" && 
+                    fillStyleTargetS3[2]=="red") {
+                        blink3 = setInterval(() => {
+                            for(let i=0;i<3;i++)
+                                fillStyleTargetS3[i] = fillStyleTargetS3[i]=='red'?'#ff7777':'red';
+                        }, 200);
+                        targetBlinking=true;
                     }
             } 
             if(targetHit && enterStage2) {
@@ -407,3 +485,40 @@ infoBox = function(text) {
     ctx.fillText("X",ctxS.width-40, 38);
     ctx.restore();
 }
+var gmin=0;
+var gsec=0;
+startTimer = function(duration) {
+    var start = Date.now(),
+        diff,
+        minutes,
+        seconds;
+    function timer() {
+        // get the number of seconds that have elapsed since 
+        // startTimer() was called
+        diff = duration - (((Date.now() - start) / 1000) | 0);
+
+        // does the same job as parseInt truncates the float
+        minutes = (diff / 60) | 0;
+        seconds = (diff % 60) | 0;
+        console.log(diff);
+        if(!diff) {
+            alert("Game Over");
+            location.reload(true);
+        }
+        gmin = minutes = minutes < 10 ? "0" + minutes : minutes;
+        gsec = seconds = seconds < 10 ? "0" + seconds : seconds;
+        if (diff <= 0) {
+            // add one second so that the count down starts at the full duration
+            // example 05:00 not 04:59
+            start = Date.now() + 1000;
+        }
+    };
+    // we don't want to wait a full second before the timer starts
+    timer();
+    setInterval(timer, 1000);
+}
+
+window.onload = function () {
+    var fiveMinutes = 60 * 8;
+    startTimer(fiveMinutes);
+};

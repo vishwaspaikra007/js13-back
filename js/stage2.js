@@ -13,6 +13,8 @@ stage2 = function() {
     // stayInBoundary("s2x",0,player.mapSizeWidthS2,'map',true,"s2y",mapArea[1]);
     if(holdGun == true)
         drawGun(x,player.s2y-180 + player.height/3);
+    if(holdKey == true)
+        drawKey(x);
     for(let id in bulletlist) {
         bulletlist[id].update(bulletlist[id],"s2");
     }

@@ -27,6 +27,8 @@ stage1 = function() {
             drawGun(x);
         else
             drawGun();
+        if(holdKey == true)
+            drawKey(x);
         stayInBoundary("s1x",0,player.mapSizeS1,'map');
         for(let i=0;i<4;i++)
             stayInBoundary("s1x",blockInitialPosition+40*i,blockInitialPosition+40*i,'block',block[`b${i+1}`]);

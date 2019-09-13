@@ -28,33 +28,63 @@ var wallString = [[13,0,3,46,0],[0,9,10,3,0],[20,5,3,47,0],[0,18,3,3,1],[3,18,9,
                 [34,38,3,4,2],[23,42,4,4,3],[27,42,24,4,0],[46,0,6,5,4]]
 var blockSpeed=20;
 var deleteSpeed=60;
-stage4 = function() {
+var stage4 = function() {
     ctx.save();
     TextS1 = [["Welcome to stage 4"]];
-    TextS2 = [["Welcome to stage 4"]];
-        if(player.pressingRight == true)
-            player.s4x+=player.xspd;
-        if(player.pressingLeft == true)
-            player.s4x-=player.xspd;
-        if(player.pressingTop == true)
-            player.s4y-=player.yspd;
-        if(player.pressingBottom == true)
-            player.s4y+=player.yspd;
-        let mapArea = newSizeCanvas();
-        const x = centerPlay("s4x",mapArea[0]*2);
-        const y = centerPlayY("s4y",mapArea[0]*2);
-        mapMovement(xMovement,"s4x",player.mapSize,1,TextS2,"27px Georgia",yMovement,"s4y");        
-        stayInBoundary("s4x",0,mapArea[0]*2,'map',true,"s4y",mapArea[0]*2);
-        drawTrack(xMovement,yMovement);
-        drawMovingBubbles(9,38,-xMovement,-yMovement);
-        if(holdGun == true)
-            drawGun(x,y-180+player.height/3);
-        for(let id in bulletlist)
-            bulletlist[id].update(bulletlist[id],"s4",-xMovement,-yMovement);
-        ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,y,player.width,player.height);
+    TextS2 = [["Be sure You have everything",
+                ["because You won't be able to go back"],
+                ["As I had to work as per the theme"]]];
+    if(player.pressingRight == true)
+        player.s4x+=player.xspd;
+    if(player.pressingLeft == true)
+        player.s4x-=player.xspd;
+    if(player.pressingTop == true)
+        player.s4y-=player.yspd;
+    if(player.pressingBottom == true)
+        player.s4y+=player.yspd;
+    let mapArea = newSizeCanvas();
+    const x = centerPlay("s4x",mapArea[0]*2);
+    const y = centerPlayY("s4y",mapArea[0]*2);
+    mapMovement(xMovement,"s4x",player.mapSize,1,TextS2,"27px Georgia",yMovement,"s4y");        
+    stayInBoundary("s4x",0,mapArea[0]*2,'map',true,"s4y",mapArea[0]*2);
+    drawTrack(xMovement,yMovement);
+    drawMovingBubbles(9,38,-xMovement,-yMovement);
+    if(holdKey == true)
+        drawKey(x,y-180+player.height/3);
+    else
+        drawKey();
+    if(holdGun == true)
+        drawGun(x,player.s5y-180 + player.height/3);
+    for(let id in bulletlist)
+        bulletlist[id].update(bulletlist[id],"s4",-xMovement,-yMovement);
+    drawText(0,20,[`Buttons click left ${buttonLimit} & button Reset ${buttonResetLimit} 
+                Press b to reset`],
+                "30px Georgia",0,20)
+    ctx.drawImage(document.getElementById('svg'), 0, 0, 219,375,x,y,player.width,player.height);
     ctx.restore();
 }
-wallBoundaries = function() {
+drawKey = function(xKey=0,yKey=0) {
+    ctx.save();
+    // let x=2150,y=100;
+    let x=2350-xMovement;
+    y=100-yMovement;
+    let factr = 1;
+    if(holdKey == true) {
+        x=xKey + player.width*2/3;
+        y=200 + yKey;   
+        factr = 0.4;     
+    }
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(x,y, 30*factr, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillRect(x,y-15*factr,145*factr,15*factr);
+    ctx.fillRect(x+130*factr,y,15*factr,40*factr);
+    ctx.fillRect(x+100*factr,y,15*factr,30*factr);
+    ctx.fillRect(x+70*factr,y,15*factr,40*factr);
+    ctx.restore();
+}
+var wallBoundaries = function() {
     for(let i=0;i<wallString.length;i++) {
         self = {
             id:Math.random(),
@@ -86,7 +116,7 @@ wallBoundaries = function() {
             blockGate[wallString[i][4]-1] = self.id;
     }
 }
-drawTrack = function(x,y) {
+var drawTrack = function(x,y) {
     for(let id in blocks) {
         blocks[id].update(blocks[id],x,y);
     }
@@ -117,13 +147,15 @@ drawTrack = function(x,y) {
     }
     if(buttons[buttonsSet3[0]].blink && buttons[buttonsSet3[1]].blink && 
         buttons[buttonsSet3[2]].blink && buttons[buttonsSet3[3]].blink 
-        && buttons[buttonsSet3[3]].blink && gateAccessProhibition3) {
+        && gateAccessProhibition3) {
             gateAccessProhibition3=false;
             delete walls[blockGate[3]];
             delB(gate4);
     }
+    if(!holdKey && player.s4x>2350 && player.s4y<100)
+        holdKey=true;
 }
-randomBlockGenerator = function() {
+var randomBlockGenerator = function() {
         var h = 0;
         var i = string[h][0];
         var j =  string[h][1];
@@ -159,7 +191,7 @@ randomBlockGenerator = function() {
         }
     }, blockSpeed);
 }
-generateBlock = function(x,y,color,gateNo,gateBlockCounter,width=40,height=40) {
+var generateBlock = function(x,y,color,gateNo,gateBlockCounter,width=40,height=40) {
     ctx.save();
     self = {
         id:Math.random(),x:x,y:y,width:width,height:height,color:color
@@ -184,7 +216,7 @@ generateBlock = function(x,y,color,gateNo,gateBlockCounter,width=40,height=40) {
         blocks[self.id]=self;
     ctx.restore();
 }
-generateButtons = function() {
+var generateButtons = function() {
     for(let i=0;i<buttonString.length;i++) {
         drawButtons(buttonString[i][0],buttonString[i][1],buttonString[i][2],buttonString[i][3]);
     }
@@ -209,7 +241,7 @@ generateButtons = function() {
             clearInterval(blinkBtn);
     }, 300);
 }
-drawButtons = function(x,y,z,indexPos) {
+var drawButtons = function(x,y,z,indexPos) {
     self = {
         id:Math.random(),
         x:x,y:y,fill:"#ff7777",
@@ -266,7 +298,7 @@ drawButtons = function(x,y,z,indexPos) {
 //     }
 // }
 //...........................................................................
-delB = function(blockSet) {
+var delB = function(blockSet) {
     let deleteSetIntervalVar;
     let gateBlockCnt=0;
     deleteSetIntervalVar = setInterval(() => {
@@ -279,7 +311,7 @@ delB = function(blockSet) {
 var radius = 110;
 var radiusConstant = 1;
 var add = true;
-drawMovingBubbles = function(x=1,y=3,xMovement,yMovement) {
+var drawMovingBubbles = function(x=1,y=3,xMovement=0,yMovement=0) {
     ctx.save();
     if(radius>150)
         add=false;
@@ -296,4 +328,29 @@ drawMovingBubbles = function(x=1,y=3,xMovement,yMovement) {
     ctx.stroke();
     ctx.fill();
     ctx.restore();
+}
+buttonReset = function() {
+    if(buttonResetLimit > 0){
+        buttons[buttonsSet1[0]].blink = false;
+        buttons[buttonsSet1[1]].blink = true;
+        buttons[buttonsSet1[2]].blink = false;
+        buttons[buttonsSet1[3]].blink = true;
+        buttons[buttonsSet2[0]].blink = false;
+        buttons[buttonsSet2[1]].blink = true;
+        buttons[buttonsSet2[2]].blink = false;
+        buttons[buttonsSet2[3]].blink = true;
+        buttons[buttonsSet3[0]].blink = false;
+        buttons[buttonsSet3[1]].blink = true;
+        buttons[buttonsSet3[2]].blink = false;
+        buttons[buttonsSet3[3]].blink = true;
+        buttons[buttonsSet3[4]].blink = false;
+        buttonLimit=6;
+        buttonResetLimit--;
+    } else {
+        buttonsSet1.shuffle();
+        buttonsSet1.shuffle();
+        buttonsSet2.shuffle();
+        buttonResetLimit=2;
+        buttonReset();
+    }
 }

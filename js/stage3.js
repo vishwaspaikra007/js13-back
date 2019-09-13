@@ -3,6 +3,7 @@ player.s3y = 120;
 targetY1 = 0;
 targetY2 = 0;
 targetY3 = 0;
+var targetBlinking = false;
 fillStyleTargetS3 = ['#ff7777','#ff7777','#ff7777'];
 stage3 = function() {
     ctx.save();
@@ -20,6 +21,8 @@ stage3 = function() {
     stayInBoundary("s3x",0,player.mapSizeWidthS2,'map',true,"s3y",mapArea[1]);
     if(holdGun == true)
         drawGun(x,player.s3y-180 + player.height/3);
+    if(holdKey == true)
+        drawKey(x,player.s3y);
     for(let id in bulletlist) {
         bulletlist[id].update(bulletlist[id],"s3");
     }
@@ -36,19 +39,20 @@ drawObstacles = function(mapArea) {
     }
 }
 
-drawTarget = function(mapArea) {
+drawTarget = function(mapArea,multiplier=1,subtractor=0) {
     ctx.save();
     ctx.lineWidth = 6;
     const center = (mapArea[1]/3)/2;
     ctx.beginPath();
-    ctx.moveTo(mapArea[0]-60, 100);
-    ctx.lineTo(mapArea[0]-60, 500);
+    ctx.moveTo(mapArea[0]*multiplier-60-xMovement-subtractor, 100);
+    ctx.lineTo(mapArea[0]*multiplier-60-xMovement-subtractor, 500);
     ctx.stroke();
     for(let i=1;i<4;i++) {
-        bulletTargetCollisionCheck(`s3T${i}y`,0,"s3Tx","s3TWidth","s3THeight");
+        if(!targetBlinking)
+            bulletTargetCollisionCheck(`s3T${i}y`,0,"s3Tx","s3TWidth","s3THeight");
         ctx.fillStyle = fillStyleTargetS3[i-1];
         ctx.beginPath();
-        ctx.arc(mapArea[0]-100,mapArea[1]*i/3 - center, 40, 0, 2 * Math.PI);
+        ctx.arc(mapArea[0]*multiplier-100-xMovement-subtractor,mapArea[1]*i/3 - center, 40, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
     }
