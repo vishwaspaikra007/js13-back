@@ -54,7 +54,7 @@ var stage4 = function() {
     else
         drawKey();
     if(holdGun == true)
-        drawGun(x,player.s5y-180 + player.height/3);
+        drawGun(x,y-player.s5y);
     for(let id in bulletlist)
         bulletlist[id].update(bulletlist[id],"s4",-xMovement,-yMovement);
     drawText(0,20,[`Buttons click left ${buttonLimit} & button Reset ${buttonResetLimit} 

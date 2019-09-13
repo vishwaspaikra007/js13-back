@@ -62,15 +62,16 @@ document.onkeyup =(event)=> {
         ) {
             enterStageCheck('enterStage3');        
         } else if(player.x >= 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
-                && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
+                // && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
                 ){
             randomBlockGenerator();
             generateButtons();
             wallBoundaries();
             buttonReset();
             enterStageCheck('enterStage4');        
-        } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true &&
-                    holdKey) {
+        } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true 
+                    // holdKey
+                    ) {
             fillStyleTargetS3[0]=fillStyleTargetS3[1]=fillStyleTargetS3[2]="#ff7777";
             blockReset();
             for(let i=0;i<3;i++)

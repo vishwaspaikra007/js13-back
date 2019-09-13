@@ -29,7 +29,7 @@ stage5 = function() {
         upDown();
     checkForMovement();
     if(holdGun == true)
-        drawGun(x,y-player.s5y-180 + player.height/3);
+        drawGun(x,player.s5y-180 + player.height/3);
     for(let id in bulletlist)
         bulletlist[id].update(bulletlist[id],"s5",-xMovement);
     stayInBoundary("s5x",0,mapArea[0]*2-170,'map',true,"s5y",mapArea[1]);
