@@ -45,11 +45,11 @@ document.onkeyup =(event)=> {
             player.yspd = 5; 
         }, 200);       
     }if(event.keyCode == 13) {
-        if(player.x >= 100 && player.x <= 200 && enterStage0 == true) {
+        if(player.x + player.width >= 100 && player.x <= 200 && enterStage0 == true) {
             controllerResetLimit=0;
             blockReset();
             enterStageCheck('enterStage1');
-        } else if(player.x >= 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
+        } else if(player.x + player.width >= 100*(10*1+1) && player.x < 100*(10*1+1) +100 && enterStage0 == true) {
             if(targetHit || totalBullets<=0)
                 totalBullets = 5;
             if(targetHit) {
@@ -57,11 +57,11 @@ document.onkeyup =(event)=> {
                 targets.s2yspd = 5;
             }
             enterStageCheck('enterStage2');        
-        } else if(player.x >= 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true 
+        } else if(player.x + player.width >= 100*(10*2+1) && player.x < 100*(10*2+1) +100 && enterStage0 == true 
         && !targetHit
         ) {
             enterStageCheck('enterStage3');        
-        } else if(player.x >= 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
+        } else if(player.x + player.width >= 100*(10*3+1) && player.x < 100*(10*3+1) +100 && enterStage0 == true 
                 && fillStyleTargetS3[0]=='red' && fillStyleTargetS3[1]=='red' && fillStyleTargetS3[2]=='red'
                 ){
             randomBlockGenerator();
@@ -69,7 +69,7 @@ document.onkeyup =(event)=> {
             wallBoundaries();
             buttonReset();
             enterStageCheck('enterStage4');        
-        } else if(player.x >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true &&
+        } else if(player.x + player.width >= 100*(10*4+1) && player.x < 100*(10*4+1) +100 && enterStage0 == true &&
                     holdKey
                     ) {
             fillStyleTargetS3[0]=fillStyleTargetS3[1]=fillStyleTargetS3[2]="#ff7777";
@@ -79,23 +79,23 @@ document.onkeyup =(event)=> {
             targetBlinking=false;
             clearInterval(blink3);
             enterStageCheck('enterStage5');        
-        } else if(player.s1x >= 100 && player.s1x < 200  && enterStage1 == true) {
+        } else if(player.s1x + player.width >= 100 && player.s1x < 200  && enterStage1 == true) {
             enterStageCheck('enterStage0');
             showText1 = !showText1;
-        } else if(player.s2x >= 100 && player.s2x < 200  && enterStage2 == true) {
+        } else if(player.s2x + player.width >= 100 && player.s2x < 200  && enterStage2 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
-        } else if(player.s3x >= 100 && player.s3x < 200  && enterStage3 == true) {
+        } else if(player.s3x + player.width >= 100 && player.s3x < 200  && enterStage3 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
-        }  else if(player.s4x >= 100 && player.s4x < 200  && enterStage4 == true &&
+        }  else if(player.s4x + player.width >= 100 && player.s4x < 200  && enterStage4 == true &&
                 player.s4y + player.height >= 100 && player.s4y <= 300) {
                 backToStage0();
-        }   else if(player.s4x >= 2350 && player.s4x < 2450  && enterStage4 == true &&
+        }   else if(player.s4x + player.width >= 2350 && player.s4x < 2450  && enterStage4 == true &&
             player.s4y + player.height >= 2363 && player.s4y <= 2563) {
             player.x=4460;
             backToStage0()
-        } else if(player.s5x >= 100 && player.s5x < 200  && enterStage5 == true) {
+        } else if(player.s5x + player.width >= 100 && player.s5x < 200  && enterStage5 == true) {
             enterStageCheck('enterStage0');
             defaultSizeCanvas();
         }
